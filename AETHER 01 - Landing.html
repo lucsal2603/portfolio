@@ -1,0 +1,1490 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+<title>AETHER 01 — Reference Desktop Monitor</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+
+<style>
+  :root{
+    --bg:        #0B0B0B;
+    --bg-warm:   #14110D;
+    --fg:        #EFEAE0;
+    --fg-dim:    #8C857A;
+    --line:      #2A2722;
+    --accent:    oklch(0.72 0.09 60);   /* warm brushed copper */
+    --accent-d:  oklch(0.55 0.08 60);
+    --grid:      rgba(239,234,224,0.05);
+
+    --f-display: "Space Grotesk", "Helvetica Neue", Arial, sans-serif;
+    --f-mono:    "JetBrains Mono", ui-monospace, Menlo, monospace;
+    --f-italic:  "Instrument Serif", "Times New Roman", serif;
+
+    --pad: clamp(20px, 3vw, 48px);
+  }
+
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html, body{
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--f-display);
+    -webkit-font-smoothing: antialiased;
+    text-rendering: optimizeLegibility;
+    overscroll-behavior: none;
+  }
+  body{ cursor: none; }
+  a{ color:inherit; text-decoration:none; }
+  img{ display:block; max-width:100%; }
+
+  /* ============ custom cursor ============ */
+  .cursor{
+    position: fixed; left:0; top:0; width:8px; height:8px;
+    border-radius:50%; background: var(--fg);
+    transform: translate(-50%,-50%);
+    pointer-events:none; z-index: 9999;
+    mix-blend-mode: difference;
+    transition: width .25s ease, height .25s ease, background .25s ease;
+  }
+  .cursor.hover{ width:48px; height:48px; background: var(--accent); }
+  @media (hover:none){ body{cursor:auto} .cursor{display:none} }
+
+  /* ============ shared utilities ============ */
+  .mono{ font-family: var(--f-mono); font-weight:400; letter-spacing:.02em; }
+  .eyebrow{
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em;
+    text-transform: uppercase; color: var(--fg-dim);
+    display:flex; align-items:center; gap:10px;
+  }
+  .eyebrow .dot{ width:6px; height:6px; border-radius:50%; background: var(--accent); display:inline-block; }
+  .rule{ height:1px; background: var(--line); width:100%; }
+
+  /* fade-up base (intersection-driven) */
+  .fade{ opacity:0; transform: translateY(28px); transition: opacity .9s cubic-bezier(.2,.7,.2,1), transform .9s cubic-bezier(.2,.7,.2,1); }
+  .fade.in{ opacity:1; transform:none; }
+
+  /* split text */
+  .split .ch{ display:inline-block; transform: translateY(110%); will-change: transform; }
+  .split .w{ display:inline-block; overflow:hidden; }
+
+  /* ============ NAV ============ */
+  nav.top{
+    position: fixed; inset: 0 0 auto 0; z-index: 50;
+    display:flex; align-items:center; justify-content:space-between;
+    padding: 20px var(--pad);
+    mix-blend-mode: difference; color:#fff;
+  }
+  nav.top .brand{
+    font-family: var(--f-display); font-weight:500; letter-spacing:.04em;
+    font-size: 14px;
+    display:flex; align-items:center; gap:10px;
+  }
+  nav.top .brand .glyph{
+    width:14px; height:14px; border:1px solid currentColor;
+    transform: rotate(45deg);
+  }
+  nav.top ul{ display:flex; gap: 28px; list-style:none; }
+  nav.top ul a{ font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em; text-transform:uppercase; opacity:.85; }
+  nav.top ul a:hover{ opacity:1; }
+  nav.top .reserve{
+    font-family: var(--f-mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase;
+    border:1px solid currentColor; padding: 9px 14px; border-radius: 999px;
+  }
+  nav.top .right{ display:flex; align-items:center; gap: 22px; }
+  .lang-toggle{
+    display:inline-flex; align-items:center; gap: 6px;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .18em;
+  }
+  .lang-toggle button{
+    background: none; border: 0; padding: 4px 2px;
+    color: inherit; opacity: .5;
+    font: inherit; letter-spacing: inherit;
+    cursor: none;
+    transition: opacity .2s ease, color .2s ease;
+  }
+  .lang-toggle button.on{ opacity: 1; color: oklch(0.72 0.09 60); }
+  .lang-toggle button:hover{ opacity: 1; }
+  .lang-toggle .sl{ opacity: .35; }
+
+  /* ============ HERO ============ */
+  .hero{
+    position: relative;
+    min-height: 100vh;
+    padding: 0 var(--pad) 40px;
+    display:flex; flex-direction:column; justify-content:flex-end;
+    overflow: hidden;
+    isolation: isolate;
+  }
+  .hero .grid-bg{
+    position:absolute; inset:-10%;
+    background-image:
+      linear-gradient(var(--grid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+    background-size: 64px 64px;
+    z-index:-2;
+    transition: transform .4s ease;
+  }
+  .hero .glow{
+    position:absolute; width: 720px; height: 720px; border-radius: 50%;
+    background: radial-gradient(circle at 50% 50%, oklch(0.7 0.12 60 / .35), transparent 60%);
+    filter: blur(40px);
+    z-index:-1;
+    left:50%; top:55%; transform: translate(-50%,-50%);
+    pointer-events:none;
+  }
+  .hero .silhouette{
+    position:absolute; right: var(--pad); top: 50%;
+    width: 38vw; max-width: 540px; aspect-ratio: 3/4;
+    transform: translateY(-50%);
+    z-index:-1;
+    border:1px solid var(--line);
+    background:
+      repeating-linear-gradient(135deg, rgba(239,234,224,.03) 0 2px, transparent 2px 14px),
+      linear-gradient(180deg, #1b1814, #0d0c0a);
+  }
+  .hero .silhouette::after{
+    content:"[ PRODUCT — front 3/4 render ]";
+    position:absolute; left:12px; bottom:10px;
+    font-family: var(--f-mono); font-size: 10px; color: var(--fg-dim); letter-spacing:.12em;
+  }
+  .hero .silhouette::before{
+    content:""; position:absolute; left:50%; top:50%;
+    width: 56%; aspect-ratio: 1; transform: translate(-50%,-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 35%, #2a2520, #0c0b09 70%);
+    box-shadow: inset 0 0 60px rgba(0,0,0,.7), 0 0 120px rgba(0,0,0,.6);
+  }
+
+  .hero-top{
+    position:absolute; top: 90px; left: var(--pad); right: var(--pad);
+    display:flex; justify-content:space-between; align-items:flex-start;
+    color: var(--fg-dim);
+  }
+  .hero-top .col{ font-family: var(--f-mono); font-size:11px; letter-spacing:.16em; text-transform:uppercase; line-height: 1.7;}
+  .hero-top .col strong{ color: var(--fg); font-weight:500; }
+
+  .hero h1{
+    font-family: var(--f-display);
+    font-weight: 500;
+    font-size: clamp(72px, 14vw, 240px);
+    line-height: .88;
+    letter-spacing: -0.04em;
+    margin-bottom: 28px;
+  }
+  .hero h1 .it{ font-family: var(--f-italic); font-style: italic; font-weight: 400; letter-spacing: -0.02em; }
+  .hero-foot{
+    display:grid; grid-template-columns: 1fr 1fr 1fr; gap: 32px;
+    padding-top: 22px; border-top: 1px solid var(--line);
+    align-items:end;
+  }
+  .hero-foot .lede{ max-width: 38ch; font-size: 15px; line-height: 1.5; color: var(--fg-dim); }
+  .hero-foot .lede em{ color: var(--fg); font-family: var(--f-italic); font-style: italic;}
+  .hero-foot .meta{ font-family: var(--f-mono); font-size: 11px; letter-spacing:.16em; text-transform:uppercase; color: var(--fg-dim); }
+  .hero-foot .meta b{ color: var(--fg); font-weight: 500; display:block; margin-top:6px; font-size:13px; letter-spacing:.08em;}
+  .hero-foot .scroll{
+    font-family: var(--f-mono); font-size:11px; letter-spacing:.18em; text-transform:uppercase; color: var(--fg-dim);
+    display:flex; align-items:center; gap:10px; justify-self:end;
+  }
+  .hero-foot .scroll .line{ width:80px; height:1px; background: var(--fg); position:relative; overflow:hidden;}
+  .hero-foot .scroll .line::after{ content:""; position:absolute; inset:0; background:var(--accent); transform:translateX(-100%); animation: dash 2.4s ease-in-out infinite; }
+  @keyframes dash{ 0%{transform:translateX(-100%)} 50%{transform:translateX(0)} 100%{transform:translateX(100%)} }
+
+  /* ============ DATA STRIP ============ */
+  .strip{
+    border-top: 1px solid var(--line);
+    border-bottom: 1px solid var(--line);
+    display: grid;
+    grid-template-columns: 1fr 1.4fr 1fr;
+  }
+  .strip .cell{
+    padding: 22px var(--pad);
+    display:flex; align-items:baseline; gap: 18px;
+    border-left: 1px solid var(--line);
+    min-height: 84px;
+  }
+  .strip .cell:first-child{ border-left: 0; }
+  .strip .cell.center{ justify-content:center; }
+  .strip .cell.right{ justify-content:flex-end; }
+  .strip .lbl{
+    font-family: var(--f-mono); font-size: 10px; letter-spacing:.18em; text-transform:uppercase; color: var(--fg-dim);
+    flex: 0 0 auto;
+  }
+  .strip .val{
+    font-family: var(--f-mono); font-size: 18px; letter-spacing: .02em; color: var(--fg);
+    display:inline-flex; align-items:center; gap: 10px;
+  }
+  .strip .val.big{ font-family: var(--f-display); font-size: 22px; letter-spacing: -.01em; font-weight: 400;}
+  .strip .dot{
+    width: 7px; height: 7px; border-radius:50%; background: var(--accent);
+    box-shadow: 0 0 0 0 var(--accent);
+    animation: pulse 2.2s ease-out infinite;
+  }
+  @keyframes pulse{
+    0%{ box-shadow: 0 0 0 0 oklch(0.72 0.09 60 / .6); }
+    70%{ box-shadow: 0 0 0 14px oklch(0.72 0.09 60 / 0); }
+    100%{ box-shadow: 0 0 0 0 oklch(0.72 0.09 60 / 0); }
+  }
+  .rotator{
+    position: relative; display:inline-block;
+    height: 1.3em; line-height: 1.3em; overflow:hidden;
+    min-width: 22ch;
+    font-family: var(--f-display); font-size: 22px; letter-spacing: -.01em;
+  }
+  .rotator .line{
+    position:absolute; left:0; top:0; right:0;
+    transform: translateY(120%); opacity: 0;
+    transition: transform .7s cubic-bezier(.7,0,.2,1), opacity .7s ease;
+    white-space: nowrap;
+  }
+  .rotator .line.in{ transform: translateY(0); opacity: 1; }
+  .rotator .line.out{ transform: translateY(-120%); opacity: 0; }
+  .rotator .line .it{ font-family: var(--f-italic); font-style: italic; color: var(--fg-dim); }
+  @media (max-width: 820px){
+    .strip{ grid-template-columns: 1fr; }
+    .strip .cell{ border-left:0; border-top: 1px solid var(--line); }
+    .strip .cell:first-child{ border-top: 0; }
+    .strip .cell.center, .strip .cell.right{ justify-content: flex-start; }
+  }
+
+  /* ============ PRINCIPLES (pinned focus rack) ============ */
+  .principles{ position: relative; }
+  .pri-pin{ height: 360vh; }
+  .pri-stage{
+    position: sticky; top: 0;
+    height: 100vh;
+    display:grid; grid-template-columns: 360px 1fr; gap: 80px;
+    align-items: center;
+    padding: 0 var(--pad);
+    max-width: 1500px; margin: 0 auto;
+  }
+  .pri-side .eyebrow{ margin-bottom: 18px; }
+  .pri-side h2{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(36px, 4.4vw, 64px); letter-spacing: -.03em; line-height: 1;
+    margin-bottom: 22px;
+  }
+  .pri-side h2 .it{ font-family: var(--f-italic); font-style: italic; }
+  .pri-side .lede{ color: var(--fg-dim); font-size: 14px; line-height: 1.55; max-width: 32ch; margin-bottom: 40px;}
+  .pri-counter{
+    display:flex; align-items: baseline; gap: 10px;
+    border-top: 1px solid var(--line); padding-top: 18px; width: 180px;
+    font-family: var(--f-mono); letter-spacing: .04em;
+  }
+  .pri-counter .cur{
+    font-family: var(--f-display); font-weight: 400; font-size: 56px;
+    letter-spacing: -.04em; color: var(--accent); line-height: 1;
+    display:inline-block; min-width: 1.4em;
+  }
+  .pri-counter .of{ color: var(--fg-dim); font-size: 13px; letter-spacing: .18em;}
+
+  .pri-list{
+    list-style: none; display:flex; flex-direction: column;
+    border-top: 1px solid var(--line);
+  }
+  .pri-list li{
+    display:grid; grid-template-columns: 80px 1fr;
+    gap: 28px; align-items: baseline;
+    padding: 26px 0;
+    border-bottom: 1px solid var(--line);
+    color: var(--fg);
+    opacity: 0.2;
+    filter: blur(6px);
+    transform: translateY(8px);
+    transition: opacity .55s ease, filter .55s ease, transform .55s cubic-bezier(.2,.7,.2,1);
+    will-change: opacity, filter, transform;
+  }
+  .pri-list li.seen{ opacity: 0.35; filter: blur(0); transform: none; }
+  .pri-list li.lit{ opacity: 1; filter: blur(0); transform: none; }
+  .pri-list li .n{
+    font-family: var(--f-mono); font-size: 11px; letter-spacing: .18em; color: var(--fg-dim);
+    align-self: start; padding-top: 8px;
+  }
+  .pri-list li.lit .n{ color: var(--accent); }
+  .pri-list li .t{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(22px, 2.6vw, 36px); letter-spacing: -.02em; line-height: 1.15;
+    text-wrap: balance;
+  }
+  .pri-list li .t em{ font-family: var(--f-italic); font-style: italic; }
+  @media (max-width: 900px){
+    .pri-stage{ grid-template-columns: 1fr; gap: 40px; padding-top: 100px;}
+    .pri-pin{ height: 320vh; }
+  }
+
+  /* ============ PRODUCT REVEAL (sticky annotations) ============ */
+  .reveal{
+    position: relative;
+    background: var(--bg-warm);
+  }
+  .reveal .stage{
+    position: sticky; top: 0;
+    height: 100vh;
+    display:grid; place-items:center;
+    overflow:hidden;
+  }
+  .reveal .obj{
+    position: relative; width: min(60vh, 520px); aspect-ratio: 3/4;
+    border:1px solid var(--line);
+    background:
+      repeating-linear-gradient(135deg, rgba(239,234,224,.03) 0 2px, transparent 2px 14px),
+      linear-gradient(180deg, #1f1b16, #0e0c0a);
+    transform-origin:center; will-change: transform;
+  }
+  .reveal .obj::before{
+    content:""; position:absolute; left:50%; top:50%;
+    width: 62%; aspect-ratio: 1; transform: translate(-50%,-50%);
+    border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #3a3128, #0d0b09 70%);
+    box-shadow: inset 0 0 60px rgba(0,0,0,.7), 0 0 120px rgba(0,0,0,.6);
+  }
+  .reveal .obj::after{
+    content:"[ AETHER 01 — body / driver ]";
+    position:absolute; left:12px; bottom:10px;
+    font-family: var(--f-mono); font-size:10px; color: var(--fg-dim); letter-spacing:.12em;
+  }
+  .reveal .stage .pin{
+    position:absolute;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.14em; text-transform: uppercase;
+    color: var(--fg);
+    display:flex; align-items:center; gap: 14px;
+    opacity: 0;
+  }
+  .reveal .stage .pin .ln{ width: 64px; height:1px; background: var(--accent); }
+  .reveal .stage .pin small{ display:block; color: var(--fg-dim); font-size:10px; letter-spacing:.18em; margin-top:4px;}
+  .reveal .stage .pin.p1{ top: 22%; left: 50%; transform: translateX(-220%); }
+  .reveal .stage .pin.p2{ top: 50%; left: 50%; transform: translateX(120%); }
+  .reveal .stage .pin.p3{ top: 78%; left: 50%; transform: translateX(-220%); }
+  .reveal .stage .pin.p4{ top: 14%; left: 50%; transform: translateX(160%); }
+  .reveal .stage .pin.in{ opacity:1; }
+
+  .reveal .scenes{ height: 400vh; }
+  .reveal .caption{
+    position:absolute; left: var(--pad); bottom: 40px;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em; text-transform: uppercase; color: var(--fg-dim);
+  }
+  .reveal .caption b{ color: var(--fg); font-weight:500; }
+
+  /* ============ SPECS (sticky left, scrolling rows) ============ */
+  .specs{
+    padding: 160px var(--pad) 120px;
+    border-top: 1px solid var(--line);
+  }
+  .specs .wrap{
+    max-width: 1400px; margin:0 auto;
+    display:grid; grid-template-columns: minmax(280px, 380px) 1fr; gap: 80px;
+  }
+  .specs .side{ position: sticky; top: 120px; align-self:start; }
+  .specs h2{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(40px, 5vw, 72px);
+    letter-spacing: -.03em; line-height: 1;
+    margin: 18px 0 22px;
+  }
+  .specs h2 .it{ font-family: var(--f-italic); font-style: italic; }
+  .specs .side p{ font-size: 14px; line-height: 1.6; color: var(--fg-dim); max-width: 34ch;}
+
+  .specs .rows{ display:flex; flex-direction:column; }
+  .specs .row{
+    display:grid; grid-template-columns: 80px 1fr auto; gap: 28px;
+    align-items:end;
+    padding: 32px 0;
+    border-top: 1px solid var(--line);
+  }
+  .specs .row:last-child{ border-bottom: 1px solid var(--line); }
+  .specs .row .idx{ font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em; color: var(--fg-dim); }
+  .specs .row .label{ font-family: var(--f-display); font-weight: 400; font-size: clamp(22px, 2.6vw, 36px); letter-spacing: -.02em; }
+  .specs .row .val{ font-family: var(--f-mono); font-size: clamp(20px, 2.4vw, 36px); color: var(--accent); letter-spacing: -.01em; }
+  .specs .row .val .u{ color: var(--fg-dim); font-size: .55em; margin-left: 6px;}
+
+  /* ============ MATERIALS (horizontal scroll) ============ */
+  .materials{
+    position:relative; overflow:hidden;
+    background: #08080A;
+    border-top: 1px solid var(--line);
+  }
+  .materials .h-pin{ height: 360vh; position: relative; }
+  .materials .h-stage{
+    position: sticky; top:0; height: 100vh; width:100%;
+    display:flex; align-items:center;
+    overflow:hidden;
+  }
+  .materials .h-track{
+    display:flex; gap: 40px; padding: 0 var(--pad);
+    will-change: transform;
+  }
+  .materials .h-track .lead{
+    flex: 0 0 auto; width: 60vw; max-width: 720px;
+    align-self:center;
+  }
+  .materials .h-track .lead .eyebrow{ margin-bottom: 20px; }
+  .materials .h-track .lead h3{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(44px, 5.5vw, 96px); line-height: 1; letter-spacing: -.03em;
+    text-wrap: balance;
+  }
+  .materials .h-track .lead h3 .it{ font-family: var(--f-italic); font-style: italic; }
+  .materials .h-track .lead p{ color: var(--fg-dim); margin-top: 20px; max-width: 46ch; font-size: 15px; line-height: 1.55;}
+  .materials .card{
+    flex: 0 0 auto; width: 36vw; max-width: 520px; aspect-ratio: 4/5;
+    border:1px solid var(--line);
+    position: relative;
+    background: linear-gradient(180deg, #16130F, #0a0908);
+    padding: 28px;
+    display:flex; flex-direction:column; justify-content:space-between;
+  }
+  .materials .card .swatch{
+    position:absolute; inset: 28px 28px 96px;
+    background:
+      repeating-linear-gradient(135deg, rgba(239,234,224,.04) 0 2px, transparent 2px 14px),
+      linear-gradient(180deg, var(--c1, #2a241d), var(--c2, #0d0b09));
+    border: 1px solid var(--line);
+  }
+  .materials .card .swatch::after{
+    content: attr(data-label);
+    position:absolute; left:10px; bottom:8px;
+    font-family: var(--f-mono); font-size:10px; color: var(--fg-dim); letter-spacing:.12em;
+  }
+  .materials .card .meta{ position:relative; z-index:1; align-self:flex-start;}
+  .materials .card .meta .idx{ font-family: var(--f-mono); font-size: 11px; letter-spacing:.16em; color: var(--fg-dim);}
+  .materials .card .foot{ position:relative; z-index:1; }
+  .materials .card .foot h4{
+    font-family: var(--f-display); font-weight:500;
+    font-size: 22px; letter-spacing: -.01em;
+  }
+  .materials .card .foot small{
+    display:block; margin-top:4px;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.16em; text-transform:uppercase; color: var(--fg-dim);
+  }
+
+  /* ============ SOUND PHILOSOPHY ============ */
+  .sound{
+    padding: 200px var(--pad) 200px;
+    background: var(--bg);
+    border-top:1px solid var(--line);
+  }
+  .sound .inner{ max-width: 1100px; margin: 0 auto; }
+  .sound .quote{
+    font-family: var(--f-italic); font-style: italic;
+    font-size: clamp(40px, 6vw, 96px);
+    line-height: 1.02; letter-spacing: -.02em; text-wrap: balance;
+    margin-bottom: 80px;
+  }
+  .sound .quote::before{ content:"“ "; color: var(--accent); }
+  .sound .quote::after{ content:" ”"; color: var(--accent); }
+  .sound .body{
+    columns: 2; column-gap: 64px;
+    font-size: 16px; line-height: 1.65; color: var(--fg-dim);
+    max-width: 1000px; margin: 0 auto;
+  }
+  .sound .body p{ break-inside: avoid; margin-bottom: 18px; }
+  .sound .body em{ color: var(--fg); font-family: var(--f-italic); font-style: italic; }
+  .sound .sign{
+    margin-top: 64px; display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em; text-transform:uppercase; color: var(--fg-dim);
+  }
+  @media (max-width: 720px){ .sound .body{ columns: 1; } }
+
+  /* ============ PRESS / PROOF ============ */
+  .press{
+    padding: 0 0 120px;
+    border-top: 1px solid var(--line);
+  }
+  .press .head{
+    padding: 60px var(--pad) 40px;
+    display:flex; justify-content:space-between; align-items:flex-end; gap: 40px;
+    border-bottom: 1px solid var(--line);
+  }
+  .press h2{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(40px, 5vw, 72px); letter-spacing:-.03em; line-height:1;
+  }
+  .press h2 .it{ font-family: var(--f-italic); font-style:italic; }
+  .press .grid{
+    display:grid; grid-template-columns: repeat(12, 1fr); gap: 1px;
+    background: var(--line);
+    border-bottom: 1px solid var(--line);
+  }
+  .press .grid > article{
+    background: var(--bg);
+    grid-column: span 4;
+    padding: 40px 32px 32px;
+    min-height: 320px;
+    display:flex; flex-direction: column; justify-content: space-between;
+  }
+  .press .grid > article .q{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: 22px; line-height: 1.25; letter-spacing: -.01em;
+    text-wrap: balance;
+  }
+  .press .grid > article .q em{ font-family: var(--f-italic); font-style: italic; }
+  .press .grid > article .src{
+    display:flex; justify-content:space-between; align-items:center;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.18em; text-transform: uppercase; color: var(--fg-dim);
+    margin-top: 40px;
+  }
+  .press .grid > article .src b{ color: var(--fg); font-weight: 500; letter-spacing:.06em; font-family: var(--f-display); text-transform: none; font-size: 14px;}
+  .press .grid > article.feature{ grid-column: span 8; min-height: 420px; }
+  .press .grid > article.feature .q{ font-size: 36px; line-height: 1.15;}
+  @media (max-width: 900px){ .press .grid > article, .press .grid > article.feature{ grid-column: span 12; } }
+
+  /* ============ CTA ============ */
+  .cta{
+    position: relative;
+    padding: 200px var(--pad) 120px;
+    border-top: 1px solid var(--line);
+    overflow:hidden;
+    background:
+      radial-gradient(circle at 50% 110%, oklch(0.5 0.1 60 / .35), transparent 60%),
+      var(--bg);
+  }
+  .cta .eyebrow{ justify-content:center; margin-bottom: 40px; }
+  .cta h2{
+    font-family: var(--f-display); font-weight: 400;
+    font-size: clamp(80px, 17vw, 320px);
+    text-align:center;
+    line-height: .82; letter-spacing: -.04em;
+  }
+  .cta h2 .it{ font-family: var(--f-italic); font-style: italic; }
+  .cta .row{
+    margin-top: 80px;
+    display:flex; justify-content:space-between; align-items:center; gap: 40px;
+    flex-wrap: wrap;
+  }
+  .cta .btn{
+    display:inline-flex; align-items:center; gap: 16px;
+    padding: 22px 30px; border-radius: 999px;
+    background: var(--fg); color: var(--bg);
+    font-family: var(--f-display); font-weight: 500; font-size: 15px; letter-spacing: .02em;
+    transition: background .2s ease, color .2s ease, transform .3s ease;
+  }
+  .cta .btn .arrow{ width: 22px; height: 22px; border-radius: 50%; background: var(--bg); color: var(--fg); display:grid; place-items:center; font-size: 12px; }
+  .cta .btn:hover{ background: var(--accent); color:#0a0908; transform: translateY(-2px); }
+  .cta .price{
+    font-family: var(--f-mono); font-size: 12px; letter-spacing:.18em; text-transform:uppercase; color: var(--fg-dim); text-align:right;
+  }
+  .cta .price b{ display:block; color: var(--fg); font-family: var(--f-display); font-size: 22px; letter-spacing: -.01em; margin-bottom: 4px; text-transform: none; font-weight: 500;}
+
+  /* ============ FOOTER ============ */
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 60px var(--pad) 28px;
+    display:grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 40px;
+    font-family: var(--f-mono); font-size: 11px; letter-spacing:.16em; text-transform: uppercase; color: var(--fg-dim);
+  }
+  footer h5{ font-family: var(--f-mono); color: var(--fg); font-weight: 400; font-size: 11px; letter-spacing: .18em; margin-bottom: 18px;}
+  footer ul{ list-style:none; display:flex; flex-direction:column; gap: 10px;}
+  footer ul a{ opacity:.85; }
+  footer ul a:hover{ color: var(--accent); opacity:1; }
+  footer .colophon{
+    grid-column: 1 / -1; margin-top: 40px; padding-top: 22px; border-top: 1px solid var(--line);
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap: 12px;
+  }
+  footer .colophon .sig{ font-family: var(--f-display); font-size: 13px; letter-spacing:-.01em; text-transform:none; color: var(--fg);}
+  @media (max-width: 720px){ footer{ grid-template-columns: 1fr 1fr; }}
+
+  /* ============ progress ============ */
+  .progress{
+    position: fixed; top: 0; left: 0; height: 2px; background: var(--accent);
+    width: 0%; z-index: 60;
+  }
+
+  /* ================================================================
+     RESPONSIVE — tablet (≤960px)
+     ================================================================ */
+  @media (max-width: 960px){
+    :root{ --pad: clamp(16px, 4vw, 28px); }
+
+    nav.top ul{ gap: 18px; }
+    nav.top ul a{ font-size: 10px; letter-spacing: .14em; }
+    nav.top .reserve{ padding: 8px 12px; font-size: 10px; }
+
+    .hero-top{ top: 80px; }
+    .hero .silhouette{ width: 44vw; }
+
+    .specs .wrap{ grid-template-columns: 1fr; gap: 40px; }
+    .specs .side{ position: static; }
+
+    .pri-stage{ grid-template-columns: 1fr; gap: 40px; padding-top: 100px; align-items: start; }
+    .pri-side{ position: sticky; top: 90px; }
+  }
+
+  /* ================================================================
+     RESPONSIVE — mobile (≤720px) — comprehensive
+     ================================================================ */
+  @media (max-width: 720px){
+    :root{ --pad: 18px; }
+    body{ cursor: auto; }
+    .cursor{ display: none; }
+
+    /* ===== NAV — keep brand + reserve only, swap menu for lang toggle ===== */
+    nav.top{ padding: 14px var(--pad); }
+    nav.top ul{ display: none; }
+    nav.top .brand{ font-size: 12px; }
+    nav.top .brand .glyph{ width: 11px; height: 11px; }
+    nav.top .right{ gap: 12px; }
+    .lang-toggle{ font-size: 10px; letter-spacing: .14em; }
+    nav.top .reserve{
+      padding: 7px 10px; font-size: 9px; letter-spacing: .14em;
+    }
+
+    /* ===== HERO ===== */
+    .hero{
+      min-height: 100svh;
+      padding: 0 var(--pad) 24px;
+      justify-content: space-between;
+    }
+    .hero .grid-bg{ background-size: 40px 40px; }
+    .hero .glow{ width: 420px; height: 420px; top: 60%; }
+    .hero .silhouette{
+      width: 70vw; max-width: 320px;
+      right: 50%; transform: translate(50%, -65%);
+      top: 38%;
+      opacity: .55;
+    }
+
+    .hero-top{
+      position: static;
+      display: flex; justify-content: space-between;
+      padding: 76px 0 0;
+      margin-bottom: auto;
+    }
+    .hero-top .col{ font-size: 9px; letter-spacing: .12em; line-height: 1.6; }
+
+    .hero h1{
+      font-size: clamp(64px, 22vw, 120px);
+      margin-bottom: 20px;
+      letter-spacing: -0.03em;
+    }
+
+    .hero-foot{
+      display: flex; flex-direction: column;
+      gap: 18px; padding-top: 18px;
+    }
+    .hero-foot .lede{ font-size: 14px; max-width: none; }
+    .hero-foot .meta{ font-size: 10px; }
+    .hero-foot .meta b{ font-size: 12px; }
+    .hero-foot .scroll{
+      justify-self: start; font-size: 10px;
+      align-self: flex-start;
+    }
+    .hero-foot .scroll .line{ width: 50px; }
+
+    /* ===== DATA STRIP (already collapses, tighten) ===== */
+    .strip .cell{ padding: 14px var(--pad); min-height: 0; gap: 12px; }
+    .strip .lbl{ font-size: 9px; letter-spacing: .14em; }
+    .strip .val{ font-size: 14px; }
+    .strip .val.big, .rotator{ font-size: 16px; min-width: 0; }
+
+    /* ===== PRINCIPLES ===== */
+    .pri-pin{ height: 280vh; }
+    .pri-stage{
+      gap: 28px; padding-top: 90px; padding-bottom: 40px;
+      grid-template-columns: 1fr;
+    }
+    .pri-side{ position: sticky; top: 72px; }
+    .pri-side h2{ font-size: 36px; margin-bottom: 14px; }
+    .pri-side .lede{ font-size: 13px; max-width: none; margin-bottom: 22px; }
+    .pri-counter{ width: 140px; padding-top: 14px; }
+    .pri-counter .cur{ font-size: 40px; }
+
+    .pri-list li{
+      grid-template-columns: 44px 1fr;
+      gap: 14px; padding: 18px 0;
+    }
+    .pri-list li .n{ font-size: 9px; padding-top: 6px; letter-spacing: .14em; }
+    .pri-list li .t{ font-size: 20px; line-height: 1.2; }
+
+    /* ===== PRODUCT REVEAL ===== */
+    .reveal .stage{ height: 100svh; }
+    .reveal .obj{ width: min(58vw, 280px); }
+    .reveal .stage .pin{
+      font-size: 9px; letter-spacing: .1em; gap: 8px;
+      max-width: 60vw;
+    }
+    .reveal .stage .pin .ln{ width: 28px; }
+    .reveal .stage .pin small{ font-size: 8px; letter-spacing: .12em; }
+    .reveal .stage .pin.p1{ top: 8%; left: 18px; transform: none; }
+    .reveal .stage .pin.p2{ top: 50%; right: 18px; left: auto; transform: translateY(-50%); flex-direction: row-reverse; }
+    .reveal .stage .pin.p3{ bottom: 14%; left: 18px; top: auto; transform: none; }
+    .reveal .stage .pin.p4{ top: 22%; right: 18px; left: auto; transform: none; flex-direction: row-reverse; }
+    .reveal .caption{
+      left: var(--pad); right: var(--pad); bottom: 20px;
+      font-size: 9px; letter-spacing: .14em;
+    }
+
+    /* ===== SPECS ===== */
+    .specs{ padding: 80px var(--pad) 60px; }
+    .specs .wrap{ gap: 24px; }
+    .specs h2{ font-size: 36px; }
+    .specs .side p{ font-size: 13px; max-width: none; }
+    .specs .row{
+      grid-template-columns: 36px 1fr;
+      grid-template-areas:
+        "idx label"
+        "idx value";
+      gap: 4px 14px; padding: 18px 0;
+      align-items: start;
+    }
+    .specs .row .idx{ grid-area: idx; font-size: 9px; padding-top: 4px; letter-spacing: .14em; }
+    .specs .row .label{ grid-area: label; font-size: 18px; }
+    .specs .row .val{ grid-area: value; font-size: 18px; }
+    .specs .row .val .u{ font-size: .65em; margin-left: 4px; }
+
+    /* ===== MATERIALS (horizontal — keep but adapt sizing) ===== */
+    .materials .h-pin{ height: 320vh; }
+    .materials .h-track{ gap: 20px; padding: 0 var(--pad); }
+    .materials .h-track .lead{ width: 84vw; max-width: none; }
+    .materials .h-track .lead h3{ font-size: 40px; line-height: 1.02; }
+    .materials .h-track .lead p{ font-size: 13px; margin-top: 14px; }
+    .materials .card{
+      width: 70vw; max-width: 320px; padding: 20px;
+    }
+    .materials .card .swatch{ inset: 20px 20px 72px; }
+    .materials .card .foot h4{ font-size: 18px; }
+    .materials .card .foot small{ font-size: 9px; letter-spacing: .12em; }
+    .materials .card .meta .idx{ font-size: 9px; letter-spacing: .12em; }
+
+    /* ===== SOUND ===== */
+    .sound{ padding: 100px var(--pad) 100px; }
+    .sound .quote{
+      font-size: 38px; line-height: 1.05;
+      margin-bottom: 40px;
+    }
+    .sound .body{ columns: 1; font-size: 14px; line-height: 1.6; }
+    .sound .body p{ margin-bottom: 14px; }
+    .sound .sign{
+      margin-top: 36px; flex-direction: column; gap: 8px;
+      align-items: flex-start; font-size: 9px; letter-spacing: .14em;
+    }
+
+    /* ===== PRESS ===== */
+    .press .head{
+      padding: 40px var(--pad) 30px;
+      flex-direction: column; align-items: flex-start; gap: 14px;
+    }
+    .press h2{ font-size: 36px; }
+    .press .grid{ grid-template-columns: 1fr; gap: 1px; }
+    .press .grid > article,
+    .press .grid > article.feature{
+      grid-column: span 1;
+      padding: 28px 20px;
+      min-height: 0;
+    }
+    .press .grid > article .q{ font-size: 18px; }
+    .press .grid > article.feature{ min-height: 0; }
+    .press .grid > article.feature .q{ font-size: 24px; line-height: 1.2; }
+    .press .grid > article .src{ margin-top: 26px; font-size: 9px; letter-spacing: .14em; }
+    .press .grid > article .src b{ font-size: 12px; }
+
+    /* ===== CTA ===== */
+    .cta{ padding: 100px var(--pad) 70px; }
+    .cta h2{
+      font-size: clamp(72px, 26vw, 140px);
+      line-height: .85;
+    }
+    .cta .row{
+      margin-top: 40px;
+      flex-direction: column; align-items: stretch; gap: 22px;
+    }
+    .cta .btn{
+      padding: 18px 22px; font-size: 13px;
+      justify-content: space-between;
+    }
+    .cta .price{ text-align: left; font-size: 10px; }
+    .cta .price b{ font-size: 18px; }
+
+    /* ===== FOOTER ===== */
+    footer{
+      grid-template-columns: 1fr 1fr;
+      gap: 28px 24px;
+      padding: 40px var(--pad) 22px;
+      font-size: 10px; letter-spacing: .12em;
+    }
+    footer h5{ font-size: 10px; margin-bottom: 12px; }
+    footer ul{ gap: 8px; }
+    footer .colophon{
+      grid-column: 1 / -1; margin-top: 22px; padding-top: 16px;
+      flex-direction: column; align-items: flex-start; gap: 8px;
+    }
+    footer .colophon .sig{ font-size: 11px; }
+  }
+
+  /* ================================================================
+     RESPONSIVE — small phones (≤380px)
+     ================================================================ */
+  @media (max-width: 380px){
+    nav.top .brand{ font-size: 11px; }
+    nav.top .brand .glyph{ display: none; }
+    nav.top .reserve{ padding: 6px 8px; font-size: 8px; }
+    .hero h1{ font-size: 56px; }
+    .pri-side h2{ font-size: 30px; }
+    .specs h2{ font-size: 30px; }
+    .sound .quote{ font-size: 32px; }
+    .press h2{ font-size: 28px; }
+    .cta h2{ font-size: 64px; }
+    footer{ grid-template-columns: 1fr; }
+  }
+
+  /* ================================================================
+     Touch — disable custom cursor and hover-only effects
+     ================================================================ */
+  @media (hover: none), (pointer: coarse){
+    body{ cursor: auto; }
+    .cursor{ display: none !important; }
+  }
+
+  /* Respect motion preferences */
+  @media (prefers-reduced-motion: reduce){
+    *{ animation-duration: .001ms !important; animation-iteration-count: 1 !important; transition-duration: .001ms !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="progress" id="progress"></div>
+
+<nav class="top" data-screen-label="Nav">
+  <div class="brand"><span class="glyph"></span> AETHER<span style="opacity:.5;margin:0 6px">/</span>SOUND</div>
+  <ul>
+    <li><a href="#manifesto" data-hover>Object</a></li>
+    <li><a href="#specs" data-hover>Specs</a></li>
+    <li><a href="#materials" data-hover>Materials</a></li>
+    <li><a href="#press" data-hover>Press</a></li>
+  </ul>
+  <div class="right">
+    <div class="lang-toggle" aria-label="Language">
+      <button type="button" data-lang="it" data-hover>IT</button>
+      <span class="sl">/</span>
+      <button type="button" data-lang="en" data-hover>EN</button>
+    </div>
+    <a class="reserve" href="#cta" data-hover>Reserve · 04 of 250</a>
+  </div>
+</nav>
+
+<!-- ============ HERO ============ -->
+<header class="hero" data-screen-label="Hero">
+  <div class="grid-bg" id="gridBg"></div>
+  <div class="glow" id="glow"></div>
+  <div class="silhouette" id="silo"></div>
+
+  <div class="hero-top">
+    <div class="col">
+      <strong>AETHER · 01</strong><br/>
+      Reference Desktop Monitor<br/>
+      Edition of 250
+    </div>
+    <div class="col" style="text-align:right">
+      Lat. 45.4642° N<br/>
+      Long. 9.1900° E<br/>
+      Milano — Atelier
+    </div>
+  </div>
+
+  <h1 class="split" id="heroTitle">
+    <span class="w"><span class="ch">A</span></span><span class="w"><span class="ch">E</span></span><span class="w"><span class="ch">T</span></span><span class="w"><span class="ch">H</span></span><span class="w"><span class="ch">E</span></span><span class="w"><span class="ch">R</span></span>
+    <span class="w"><span class="ch it">/</span></span>
+    <span class="w"><span class="ch it">01</span></span>
+  </h1>
+
+  <div class="hero-foot">
+    <p class="lede fade">A single titanium voice — engineered for the <em>quiet hours</em>. Hand-assembled in Milano, tuned by ear, calibrated by instrument.</p>
+    <div class="meta fade">
+      Status<b>Reserving Q3 · 2026</b>
+    </div>
+    <div class="scroll fade">
+      Scroll<span class="line"></span>
+    </div>
+  </div>
+</header>
+
+<!-- ============ DATA STRIP ============ -->
+<section class="strip" aria-label="Live status">
+  <div class="cell">
+    <span class="lbl">Milano · Atelier</span>
+    <span class="val" id="clock">--:--:--</span>
+  </div>
+  <div class="cell center">
+    <span class="lbl">Now</span>
+    <span class="rotator" id="rotator">
+      <span class="line in">Tuning unit <em class="it">№04</em></span>
+      <span class="line">Listening · room <em class="it">02</em></span>
+      <span class="line">Reservations <em class="it">open</em></span>
+      <span class="line">Calibration · <em class="it">1 kHz</em></span>
+    </span>
+  </div>
+  <div class="cell right">
+    <span class="lbl">Edition</span>
+    <span class="val">04 / 250 <span class="dot" aria-hidden="true"></span></span>
+  </div>
+</section>
+
+<!-- ============ PRINCIPLES ============ -->
+<section class="principles" id="manifesto" data-screen-label="Principles">
+  <div class="pri-pin">
+    <div class="pri-stage">
+      <aside class="pri-side">
+        <div class="eyebrow"><span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span> 01 / Object</div>
+        <h2>Five <span class="it">non-negotiables</span>.</h2>
+        <p class="lede">The rules we wrote in 2023 and refused to soften — even when they cost us prototypes, months, and one early investor.</p>
+        <div class="pri-counter">
+          <span class="cur" id="priCount">01</span>
+          <span class="of">/ 05</span>
+        </div>
+      </aside>
+      <ol class="pri-list" id="priList">
+        <li class="lit"><span class="n">/ 01</span><span class="t">A speaker must <em>disappear</em> before the music does.</span></li>
+        <li><span class="n">/ 02</span><span class="t">No paint. No plating. The <em>material</em> is the finish.</span></li>
+        <li><span class="n">/ 03</span><span class="t">If a number can't be <em>measured</em>, it does not go in the spec sheet.</span></li>
+        <li><span class="n">/ 04</span><span class="t">One driver, one <em>voice</em> — and one room at a time.</span></li>
+        <li><span class="n">/ 05</span><span class="t">Service for ten years, <em>or we built it wrong</em>.</span></li>
+      </ol>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRODUCT REVEAL ============ -->
+<section class="reveal" id="reveal" data-screen-label="Product reveal">
+  <div class="scenes">
+    <div class="stage">
+      <div class="obj" id="revealObj"></div>
+      <div class="pin p1" data-pin="1">
+        <span class="ln"></span>
+        <span>Driver · 6.5″ Beryllium<small>resonance &lt; 0.04%</small></span>
+      </div>
+      <div class="pin p2" data-pin="2">
+        <span>CNC Titanium Body<small>single billet · 14 hr cycle</small></span>
+        <span class="ln"></span>
+      </div>
+      <div class="pin p3" data-pin="3">
+        <span class="ln"></span>
+        <span>Magnesium Stand<small>vibration-isolating</small></span>
+      </div>
+      <div class="pin p4" data-pin="4">
+        <span>Hand-stitched Damping<small>wool · cork · silk</small></span>
+        <span class="ln"></span>
+      </div>
+      <div class="caption">
+        <b>02 /</b> Anatomy — twelve parts, one voice
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SPECS ============ -->
+<section class="specs" id="specs" data-screen-label="Specs">
+  <div class="wrap">
+    <aside class="side fade">
+      <div class="eyebrow"><span class="dot"></span> 03 / Measured</div>
+      <h2>Numbers that <span class="it">earn</span> their place.</h2>
+      <p>Every figure below is from a single, serialised unit — measured in our anechoic room at 1m, 80&nbsp;dB&nbsp;SPL. We publish what we test, and nothing else.</p>
+    </aside>
+    <div class="rows" id="specRows">
+      <div class="row"><span class="idx">/01</span><span class="label">Frequency response</span><span class="val"><span class="num" data-from="0" data-to="32">32</span><span class="u">Hz – 38kHz · ±1.5dB</span></span></div>
+      <div class="row"><span class="idx">/02</span><span class="label">Maximum SPL</span><span class="val"><span class="num" data-from="0" data-to="112">112</span><span class="u">dB · @ 1m</span></span></div>
+      <div class="row"><span class="idx">/03</span><span class="label">THD at 90 dB</span><span class="val"><span class="num" data-from="0" data-to="0.04" data-decimals="2">0.04</span><span class="u">%</span></span></div>
+      <div class="row"><span class="idx">/04</span><span class="label">Driver — beryllium</span><span class="val"><span class="num" data-from="0" data-to="6.5" data-decimals="1">6.5</span><span class="u">inch</span></span></div>
+      <div class="row"><span class="idx">/05</span><span class="label">Body — Ti-6Al-4V</span><span class="val"><span class="num" data-from="0" data-to="14">14</span><span class="u">hr machining</span></span></div>
+      <div class="row"><span class="idx">/06</span><span class="label">Weight</span><span class="val"><span class="num" data-from="0" data-to="9.2" data-decimals="1">9.2</span><span class="u">kg</span></span></div>
+      <div class="row"><span class="idx">/07</span><span class="label">Edition size</span><span class="val"><span class="num" data-from="0" data-to="250">250</span><span class="u">units · serialised</span></span></div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ MATERIALS (horizontal) ============ -->
+<section class="materials" id="materials" data-screen-label="Materials">
+  <div class="h-pin">
+    <div class="h-stage">
+      <div class="h-track" id="hTrack">
+        <div class="lead">
+          <div class="eyebrow"><span class="dot"></span> 04 / Materials</div>
+          <h3>Four materials. <span class="it">No finishes.</span> Nothing decorative.</h3>
+          <p>We refuse paint and plating. Every surface is the structure underneath it — left to age, to oxidise, to remember the room it stood in.</p>
+        </div>
+        <article class="card" style="--c1:#3b3127;--c2:#0d0b09">
+          <div class="meta"><div class="idx">/ 01 — TITANIUM</div></div>
+          <div class="swatch" data-label="Grade 5 · brushed"></div>
+          <div class="foot"><h4>Body</h4><small>14 hours of cutting · 1 of polishing</small></div>
+        </article>
+        <article class="card" style="--c1:#2b2a2e;--c2:#0a0a0b">
+          <div class="meta"><div class="idx">/ 02 — BERYLLIUM</div></div>
+          <div class="swatch" data-label="Vapour-deposited dome"></div>
+          <div class="foot"><h4>Driver</h4><small>4× stiffer than aluminium</small></div>
+        </article>
+        <article class="card" style="--c1:#1d2d2a;--c2:#080a0a">
+          <div class="meta"><div class="idx">/ 03 — MAGNESIUM</div></div>
+          <div class="swatch" data-label="Sand-cast AZ31"></div>
+          <div class="foot"><h4>Stand</h4><small>Damping · 0.022 loss factor</small></div>
+        </article>
+        <article class="card" style="--c1:#2f2620;--c2:#0a0807">
+          <div class="meta"><div class="idx">/ 04 — WOOL & CORK</div></div>
+          <div class="swatch" data-label="Hand-felted damping"></div>
+          <div class="foot"><h4>Internal damping</h4><small>Sourced — Sardinia · Portugal</small></div>
+        </article>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ============ SOUND PHILOSOPHY ============ -->
+<section class="sound" id="sound" data-screen-label="Sound">
+  <div class="inner">
+    <div class="eyebrow fade"><span class="dot"></span> 05 / Listening</div>
+    <p class="quote fade">A speaker should disappear before the music does.</p>
+    <div class="body">
+      <p class="fade">AETHER 01 is the result of seven prototypes and twenty-two years of arguments about what a reference monitor should sound like. The answer, in the end, was <em>almost nothing</em>. No tilt, no flavour, no character introduced by the cabinet — only the recording, returned faithfully.</p>
+      <p class="fade">To get there we removed everything that could move when it shouldn't. The chassis is milled from a single titanium billet, the driver suspended on a magnesium yoke, the internal chamber lined with hand-felted wool from a single Sardinian flock. Nothing was painted. Nothing was added. <em>Everything earns its place.</em></p>
+      <p class="fade">The first owner heard it in our atelier in February. She listened for nineteen minutes, ordered two, and asked us not to change a thing. We haven't.</p>
+    </div>
+    <div class="sign fade">
+      <span>— G. Marenzi, Founder</span>
+      <span>Milano · Studio · 2026</span>
+    </div>
+  </div>
+</section>
+
+<!-- ============ PRESS ============ -->
+<section class="press" id="press" data-screen-label="Press">
+  <div class="head fade">
+    <h2>What people who <span class="it">listen for a living</span> say.</h2>
+    <div class="eyebrow"><span class="dot"></span> 06 / Press</div>
+  </div>
+  <div class="grid">
+    <article class="feature fade">
+      <p class="q">"The most <em>honest</em> small monitor I have measured in fifteen years of writing about this absurd, beloved hobby. AETHER 01 does the rarest thing — it gets out of the way."</p>
+      <div class="src"><b>Stereophile</b><span>Issue 04 · 2026</span></div>
+    </article>
+    <article class="fade">
+      <p class="q">"Surgical and warm at once. A contradiction we did not know was possible."</p>
+      <div class="src"><b>The Absolute Sound</b><span>Award · 2026</span></div>
+    </article>
+    <article class="fade">
+      <p class="q">"There is no story here. Only the recording. Which is the whole story."</p>
+      <div class="src"><b>Wallpaper*</b><span>Design 100</span></div>
+    </article>
+    <article class="fade">
+      <p class="q">"A piece of furniture you happen to listen to."</p>
+      <div class="src"><b>Dezeen</b><span>Object of the Year</span></div>
+    </article>
+    <article class="fade">
+      <p class="q">"Worth the price of two of its competitors, and quieter than either."</p>
+      <div class="src"><b>Hi-Fi News</b><span>Reference · 2026</span></div>
+    </article>
+  </div>
+</section>
+
+<!-- ============ CTA ============ -->
+<section class="cta" id="cta" data-screen-label="CTA">
+  <div class="eyebrow"><span class="dot"></span> Final · Reserve</div>
+  <h2 class="split" id="ctaTitle">
+    <span class="w"><span class="ch">L</span></span><span class="w"><span class="ch">i</span></span><span class="w"><span class="ch">s</span></span><span class="w"><span class="ch">t</span></span><span class="w"><span class="ch">e</span></span><span class="w"><span class="ch">n</span></span>
+    <span class="w"><span class="ch it">.</span></span>
+  </h2>
+  <div class="row">
+    <a class="btn" href="#" data-hover>Reserve unit №04 / 250 <span class="arrow">↗</span></a>
+    <div class="price"><b>€ 24,800</b>incl. delivery · serial certificate · 10y service</div>
+  </div>
+</section>
+
+<!-- ============ FOOTER ============ -->
+<footer data-screen-label="Footer">
+  <div>
+    <h5>Atelier</h5>
+    <ul>
+      <li><a href="#" data-hover>Via Tortona 27 — Milano</a></li>
+      <li><a href="#" data-hover>Visit by appointment</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Object</h5>
+    <ul>
+      <li><a href="#" data-hover>White paper</a></li>
+      <li><a href="#" data-hover>Measurement set</a></li>
+      <li><a href="#" data-hover>Specification PDF</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Studio</h5>
+    <ul>
+      <li><a href="#" data-hover>Engineering</a></li>
+      <li><a href="#" data-hover>Service · 10 years</a></li>
+      <li><a href="#" data-hover>Press inquiries</a></li>
+    </ul>
+  </div>
+  <div>
+    <h5>Index</h5>
+    <ul>
+      <li><a href="#manifesto" data-hover>01 — Object</a></li>
+      <li><a href="#specs" data-hover>03 — Measured</a></li>
+      <li><a href="#materials" data-hover>04 — Materials</a></li>
+      <li><a href="#press" data-hover>06 — Press</a></li>
+    </ul>
+  </div>
+  <div class="colophon">
+    <span class="sig">© AETHER / Sound — Edition of 250 · Milano · MMXXVI</span>
+    <span>Built with intention. Not in a hurry.</span>
+  </div>
+</footer>
+
+<!-- ============ SCRIPTS ============ -->
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/gsap.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/gsap@3.12.5/dist/ScrollTrigger.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/lenis@1.1.13/dist/lenis.min.js"></script>
+
+<script>
+  /* ---------- Lenis smooth scroll ---------- */
+  const lenis = new Lenis({
+    duration: 1.15,
+    easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+    smoothWheel: true,
+    wheelMultiplier: 1.0,
+  });
+  function raf(time){ lenis.raf(time); requestAnimationFrame(raf); }
+  requestAnimationFrame(raf);
+
+  gsap.registerPlugin(ScrollTrigger);
+  lenis.on('scroll', ScrollTrigger.update);
+  gsap.ticker.add(time => lenis.raf(time * 1000));
+  gsap.ticker.lagSmoothing(0);
+
+  /* ---------- progress bar ---------- */
+  const prog = document.getElementById('progress');
+  ScrollTrigger.create({
+    trigger: document.body, start: 'top top', end: 'bottom bottom',
+    onUpdate: s => prog.style.width = (s.progress * 100).toFixed(2) + '%'
+  });
+
+  /* ---------- custom cursor ---------- */
+  const cursor = document.getElementById('cursor');
+  let cx = window.innerWidth/2, cy = window.innerHeight/2;
+  let tx = cx, ty = cy;
+  window.addEventListener('mousemove', e => { tx = e.clientX; ty = e.clientY; });
+  function loopCursor(){
+    cx += (tx - cx) * 0.18;
+    cy += (ty - cy) * 0.18;
+    cursor.style.transform = `translate(${cx}px,${cy}px) translate(-50%,-50%)`;
+    requestAnimationFrame(loopCursor);
+  }
+  loopCursor();
+  document.querySelectorAll('[data-hover], a, button').forEach(el=>{
+    el.addEventListener('mouseenter', ()=>cursor.classList.add('hover'));
+    el.addEventListener('mouseleave', ()=>cursor.classList.remove('hover'));
+  });
+
+  /* ---------- hero mouse parallax ---------- */
+  const gridBg = document.getElementById('gridBg');
+  const glow = document.getElementById('glow');
+  const silo = document.getElementById('silo');
+  window.addEventListener('mousemove', e => {
+    const x = (e.clientX / window.innerWidth - 0.5);
+    const y = (e.clientY / window.innerHeight - 0.5);
+    gridBg.style.transform = `translate(${x * -30}px, ${y * -30}px)`;
+    if(silo){ silo.style.transform = `translateY(-50%) translate(${x * -20}px, ${y * -20}px)`; }
+    glow.style.transform = `translate(calc(-50% + ${x * 40}px), calc(-50% + ${y * 40}px))`;
+  });
+
+  /* ---------- hero split-in ---------- */
+  gsap.to('#heroTitle .ch', {
+    y: '0%', duration: 1.1, ease: 'expo.out', stagger: 0.06, delay: 0.15
+  });
+  gsap.to('.hero .fade', { opacity: 1, y: 0, duration: 1.2, stagger: 0.12, delay: 0.7, ease: 'expo.out' });
+
+  /* hero scroll parallax */
+  gsap.to('.hero h1', { y: -120, ease: 'none', scrollTrigger:{ trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }});
+  gsap.to('.hero .silhouette', { y: 160, ease:'none', scrollTrigger:{ trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }});
+  gsap.to('.hero .glow', { scale: 1.4, opacity: 0.4, ease:'none', scrollTrigger:{ trigger: '.hero', start: 'top top', end: 'bottom top', scrub: true }});
+
+  /* ---------- generic fade reveal ---------- */
+  document.querySelectorAll('.fade').forEach(el => {
+    if(el.closest('.hero')) return;
+    ScrollTrigger.create({
+      trigger: el, start: 'top 88%',
+      onEnter: () => el.classList.add('in'),
+    });
+  });
+
+  /* ---------- data strip: live clock + rotator ---------- */
+  (function(){
+    const clock = document.getElementById('clock');
+    function tick(){
+      const lang = document.documentElement.lang || 'it';
+      const locale = lang === 'it' ? 'it-IT' : 'en-GB';
+      const t = new Date().toLocaleTimeString(locale, { timeZone: 'Europe/Rome', hour12: false });
+      clock.textContent = t;
+    }
+    tick(); setInterval(tick, 1000);
+
+    const lines = document.querySelectorAll('#rotator .line');
+    let i = 0;
+    setInterval(() => {
+      const cur = lines[i];
+      const nxt = lines[(i + 1) % lines.length];
+      cur.classList.remove('in'); cur.classList.add('out');
+      setTimeout(()=> cur.classList.remove('out'), 800);
+      nxt.classList.add('in');
+      i = (i + 1) % lines.length;
+    }, 3200);
+  })();
+
+  /* ---------- principles: pinned focus rack ---------- */
+  (function(){
+    const items = document.querySelectorAll('#priList li');
+    const count = document.getElementById('priCount');
+    ScrollTrigger.create({
+      trigger: '.pri-pin',
+      start: 'top top',
+      end: 'bottom bottom',
+      onUpdate: s => {
+        // map 0..1 across items, with each item holding for a window
+        const idx = Math.min(items.length - 1, Math.floor(s.progress * items.length * 0.999));
+        items.forEach((it, i) => {
+          it.classList.toggle('lit', i === idx);
+          it.classList.toggle('seen', i < idx);
+        });
+        count.textContent = String(idx + 1).padStart(2, '0');
+      }
+    });
+  })();
+
+  /* ---------- product reveal: pin + scale + annotations ---------- */
+  (function(){
+    const stage = document.querySelector('#reveal .stage');
+    const obj = document.getElementById('revealObj');
+    const pins = document.querySelectorAll('#reveal .pin');
+
+    gsap.fromTo(obj, { scale: 0.85, rotate: -3 }, {
+      scale: 1.15, rotate: 3, ease:'none',
+      scrollTrigger:{ trigger:'#reveal .scenes', start: 'top top', end:'bottom bottom', scrub: true }
+    });
+
+    pins.forEach((pin, i) => {
+      const segStart = i / pins.length;
+      const segEnd = (i+1) / pins.length;
+      ScrollTrigger.create({
+        trigger:'#reveal .scenes',
+        start: 'top top', end: 'bottom bottom',
+        onUpdate: s => {
+          const inSeg = s.progress >= segStart - 0.04 && s.progress <= segEnd + 0.04;
+          pin.classList.toggle('in', inSeg);
+        }
+      });
+    });
+  })();
+
+  /* ---------- specs: counters + row reveal ---------- */
+  document.querySelectorAll('#specRows .row').forEach((row, i) => {
+    gsap.fromTo(row, { y: 40, opacity: 0 }, {
+      y: 0, opacity: 1, duration: 1, ease:'expo.out',
+      scrollTrigger: { trigger: row, start: 'top 85%' }
+    });
+    const num = row.querySelector('.num');
+    if(!num) return;
+    const to = parseFloat(num.dataset.to);
+    const dec = parseInt(num.dataset.decimals || '0');
+    const obj = { v: parseFloat(num.dataset.from || '0') };
+    ScrollTrigger.create({
+      trigger: row, start: 'top 85%',
+      onEnter: () => {
+        gsap.to(obj, { v: to, duration: 1.6, ease: 'expo.out',
+          onUpdate: () => num.textContent = obj.v.toFixed(dec)
+        });
+      }
+    });
+  });
+
+  /* ---------- materials: horizontal scroll pin ---------- */
+  (function(){
+    const track = document.getElementById('hTrack');
+    const pin = document.querySelector('#materials .h-pin');
+    function setup(){
+      const distance = track.scrollWidth - window.innerWidth + 80;
+      gsap.to(track, {
+        x: -distance, ease:'none',
+        scrollTrigger:{
+          trigger: pin,
+          start: 'top top', end: () => '+=' + distance,
+          scrub: 1,
+          pin: '#materials .h-stage',
+          anticipatePin: 1,
+          invalidateOnRefresh: true,
+        }
+      });
+    }
+    setup();
+  })();
+
+  /* ---------- cta title split ---------- */
+  ScrollTrigger.create({
+    trigger:'#ctaTitle', start: 'top 80%',
+    onEnter: () => gsap.to('#ctaTitle .ch', { y:'0%', duration: 1.1, ease:'expo.out', stagger: 0.05 })
+  });
+
+  /* ---------- refresh on load ---------- */
+  window.addEventListener('load', () => ScrollTrigger.refresh());
+
+  /* ---------- i18n (IT / EN) ---------- */
+  const I18N_IT_HTML = {
+    'nav.top ul li:nth-child(1) a': 'Oggetto',
+    'nav.top ul li:nth-child(2) a': 'Dati',
+    'nav.top ul li:nth-child(3) a': 'Materiali',
+    'nav.top ul li:nth-child(4) a': 'Stampa',
+    '.reserve': 'Prenota · 04 di 250',
+
+    '.hero-top .col:first-child': '<strong>AETHER · 01</strong><br/>Monitor da scrivania, riferimento<br/>Edizione di 250',
+
+    '.hero-foot .lede': 'Una sola voce in titanio — progettata per le <em>ore silenziose</em>. Assemblata a mano a Milano, accordata a orecchio, calibrata con strumenti.',
+    '.hero-foot .meta': 'Stato<b>Prenotazioni Q3 · 2026</b>',
+    '.hero-foot .scroll': 'Scorri<span class="line"></span>',
+
+    '.strip .cell:nth-child(2) .lbl': 'Adesso',
+    '.strip .cell:nth-child(3) .lbl': 'Edizione',
+    '#rotator .line:nth-child(1)': 'Accordando unità <em class="it">№04</em>',
+    '#rotator .line:nth-child(2)': 'Ascolto · stanza <em class="it">02</em>',
+    '#rotator .line:nth-child(3)': 'Prenotazioni <em class="it">aperte</em>',
+    '#rotator .line:nth-child(4)': 'Calibrazione · <em class="it">1 kHz</em>',
+
+    '.pri-side .eyebrow': '<span class="dot" style="width:6px;height:6px;border-radius:50%;background:var(--accent);display:inline-block"></span> 01 / Oggetto',
+    '.pri-side h2': 'Cinque <span class="it">non-negoziabili</span>.',
+    '.pri-side .lede': 'Le regole scritte nel 2023 e mai ammorbidite — anche quando ci sono costate prototipi, mesi e un investitore.',
+    '#priList li:nth-child(1) .t': 'Un diffusore deve <em>scomparire</em> prima della musica.',
+    '#priList li:nth-child(2) .t': 'Niente vernice. Niente placcature. Il <em>materiale</em> è la finitura.',
+    '#priList li:nth-child(3) .t': 'Se un numero non si può <em>misurare</em>, non finisce nella scheda tecnica.',
+    '#priList li:nth-child(4) .t': 'Un solo driver, una sola <em>voce</em> — e una stanza alla volta.',
+    '#priList li:nth-child(5) .t': "Dieci anni di assistenza, <em>o l'abbiamo costruito male</em>.",
+
+    '.pin.p1 span:not(.ln)': 'Driver · 6,5″ Berillio<small>risonanza &lt; 0,04%</small>',
+    '.pin.p2 span:not(.ln)': 'Corpo titanio CNC<small>billetta unica · 14 h</small>',
+    '.pin.p3 span:not(.ln)': 'Base in magnesio<small>isola le vibrazioni</small>',
+    '.pin.p4 span:not(.ln)': 'Smorzamento cucito a mano<small>lana · sughero · seta</small>',
+    '#reveal .caption': '<b>02 /</b> Anatomia — dodici parti, una voce',
+
+    '.specs .side .eyebrow': '<span class="dot"></span> 03 / Misurato',
+    '.specs .side h2': 'Numeri che <span class="it">si guadagnano</span> il loro posto.',
+    '.specs .side p': 'Ogni valore proviene da una singola unità serializzata — misurato nella nostra camera anecoica a 1\u00a0m, 80\u00a0dB\u00a0SPL. Pubblichiamo ciò che misuriamo, e nient\u2019altro.',
+    '.specs .row:nth-child(1) .label': 'Risposta in frequenza',
+    '.specs .row:nth-child(2) .label': 'SPL massima',
+    '.specs .row:nth-child(3) .label': 'THD a 90 dB',
+    '.specs .row:nth-child(4) .label': 'Driver — berillio',
+    '.specs .row:nth-child(5) .label': 'Corpo — Ti-6Al-4V',
+    '.specs .row:nth-child(6) .label': 'Peso',
+    '.specs .row:nth-child(7) .label': 'Tiratura',
+    '.specs .row:nth-child(2) .u': 'dB · a 1m',
+    '.specs .row:nth-child(4) .u': 'pollici',
+    '.specs .row:nth-child(5) .u': 'h di lavoro',
+    '.specs .row:nth-child(7) .u': 'unità · serializzate',
+
+    '.materials .lead .eyebrow': '<span class="dot"></span> 04 / Materiali',
+    '.materials .lead h3': 'Quattro materiali. <span class="it">Nessuna finitura.</span> Nulla di decorativo.',
+    '.materials .lead p': 'Rifiutiamo vernici e placcature. Ogni superficie è la struttura sottostante — lasciata invecchiare, ossidare, ricordare la stanza che l\u2019ha ospitata.',
+    '.materials .card:nth-of-type(1) .idx': '/ 01 — TITANIO',
+    '.materials .card:nth-of-type(2) .idx': '/ 02 — BERILLIO',
+    '.materials .card:nth-of-type(3) .idx': '/ 03 — MAGNESIO',
+    '.materials .card:nth-of-type(4) .idx': '/ 04 — LANA & SUGHERO',
+    '.materials .card:nth-of-type(1) .foot h4': 'Corpo',
+    '.materials .card:nth-of-type(1) .foot small': '14 ore di taglio · 1 di lucidatura',
+    '.materials .card:nth-of-type(2) .foot h4': 'Driver',
+    '.materials .card:nth-of-type(2) .foot small': '4× più rigido dell\u2019alluminio',
+    '.materials .card:nth-of-type(3) .foot h4': 'Base',
+    '.materials .card:nth-of-type(3) .foot small': 'Smorzamento · fattore di perdita 0,022',
+    '.materials .card:nth-of-type(4) .foot h4': 'Smorzamento interno',
+    '.materials .card:nth-of-type(4) .foot small': 'Origine — Sardegna · Portogallo',
+
+    '.sound .eyebrow': '<span class="dot"></span> 05 / Ascolto',
+    '.sound .quote': 'Un diffusore deve scomparire prima della musica.',
+    '.sound .body p:nth-child(1)': 'AETHER 01 è il risultato di sette prototipi e ventidue anni di discussioni su come dovrebbe suonare un monitor di riferimento. La risposta, alla fine, è stata <em>quasi nulla</em>. Nessuna inclinazione, nessun sapore, nessun carattere introdotto dal cabinet — solo la registrazione, restituita fedelmente.',
+    '.sound .body p:nth-child(2)': 'Per arrivarci abbiamo rimosso tutto ciò che poteva muoversi quando non doveva. Il telaio è ricavato da una singola billetta di titanio, il driver è sospeso su una forcella in magnesio, la camera interna è rivestita di lana feltrata a mano da un solo gregge sardo. Nulla è stato verniciato. Nulla è stato aggiunto. <em>Tutto si guadagna il proprio posto.</em>',
+    '.sound .body p:nth-child(3)': 'La prima proprietaria l\u2019ha ascoltato nel nostro atelier a febbraio. Ha ascoltato per diciannove minuti, ne ha ordinati due, e ci ha chiesto di non cambiare nulla. Non l\u2019abbiamo fatto.',
+    '.sound .sign span:nth-child(1)': '— G. Marenzi, Fondatore',
+
+    '.press h2': 'Cosa dicono coloro che <span class="it">ascoltano per mestiere</span>.',
+    '.press .head .eyebrow': '<span class="dot"></span> 06 / Stampa',
+    '.press article:nth-of-type(1) .q': '«Il piccolo monitor più <em>onesto</em> che abbia misurato in quindici anni di scrittura su questo hobby assurdo e amato. AETHER 01 fa la cosa più rara — si fa da parte.»',
+    '.press article:nth-of-type(1) .src span': 'Numero 04 · 2026',
+    '.press article:nth-of-type(2) .q': '«Chirurgico e caldo allo stesso tempo. Una contraddizione che non sapevamo possibile.»',
+    '.press article:nth-of-type(2) .src span': 'Premio · 2026',
+    '.press article:nth-of-type(3) .q': '«Qui non c\u2019è una storia. Solo la registrazione. Che è la storia intera.»',
+    '.press article:nth-of-type(4) .q': '«Un pezzo d\u2019arredamento che ti capita di ascoltare.»',
+    '.press article:nth-of-type(4) .src span': 'Oggetto dell\u2019anno',
+    '.press article:nth-of-type(5) .q': '«Vale il prezzo di due dei suoi concorrenti, e più silenzioso di entrambi.»',
+    '.press article:nth-of-type(5) .src span': 'Riferimento · 2026',
+
+    '.cta .eyebrow': '<span class="dot"></span> Finale · Prenota',
+    '.cta .btn': 'Prenota unità №04 / 250 <span class="arrow">↗</span>',
+    '.cta .price': '<b>€ 24.800</b>consegna · certificato seriale · 10 anni di assistenza',
+
+    'footer > div:nth-child(1) h5': 'Atelier',
+    'footer > div:nth-child(1) ul li:nth-child(2) a': 'Visita su appuntamento',
+    'footer > div:nth-child(2) h5': 'Oggetto',
+    'footer > div:nth-child(2) ul li:nth-child(1) a': 'White paper',
+    'footer > div:nth-child(2) ul li:nth-child(2) a': 'Misurazioni',
+    'footer > div:nth-child(2) ul li:nth-child(3) a': 'Scheda tecnica PDF',
+    'footer > div:nth-child(3) h5': 'Studio',
+    'footer > div:nth-child(3) ul li:nth-child(1) a': 'Ingegneria',
+    'footer > div:nth-child(3) ul li:nth-child(2) a': 'Assistenza · 10 anni',
+    'footer > div:nth-child(3) ul li:nth-child(3) a': 'Contatti stampa',
+    'footer > div:nth-child(4) h5': 'Indice',
+    'footer > div:nth-child(4) ul li:nth-child(1) a': '01 — Oggetto',
+    'footer > div:nth-child(4) ul li:nth-child(2) a': '03 — Misurato',
+    'footer > div:nth-child(4) ul li:nth-child(3) a': '04 — Materiali',
+    'footer > div:nth-child(4) ul li:nth-child(4) a': '06 — Stampa',
+    'footer .colophon .sig': '© AETHER / Sound — Edizione di 250 · Milano · MMXXVI',
+    'footer .colophon span:nth-child(2)': 'Costruito con intenzione. Senza fretta.',
+  };
+
+  const I18N_IT_ATTRS = {
+    '.materials .card:nth-of-type(1) .swatch': { 'data-label': 'Grado 5 · spazzolato' },
+    '.materials .card:nth-of-type(2) .swatch': { 'data-label': 'Cupola a deposizione di vapore' },
+    '.materials .card:nth-of-type(3) .swatch': { 'data-label': 'AZ31 fuso in sabbia' },
+    '.materials .card:nth-of-type(4) .swatch': { 'data-label': 'Smorzamento feltrato a mano' },
+  };
+
+  (function initI18N(){
+    const EN_HTML = {};
+    const EN_ATTRS = {};
+    Object.keys(I18N_IT_HTML).forEach(sel => {
+      const el = document.querySelector(sel);
+      if(el) EN_HTML[sel] = el.innerHTML;
+    });
+    Object.keys(I18N_IT_ATTRS).forEach(sel => {
+      const el = document.querySelector(sel);
+      if(!el) return;
+      EN_ATTRS[sel] = {};
+      Object.keys(I18N_IT_ATTRS[sel]).forEach(a => EN_ATTRS[sel][a] = el.getAttribute(a));
+    });
+
+    function apply(lang){
+      const map = lang === 'it' ? I18N_IT_HTML : EN_HTML;
+      const amap = lang === 'it' ? I18N_IT_ATTRS : EN_ATTRS;
+      Object.entries(map).forEach(([sel, html]) => {
+        const el = document.querySelector(sel);
+        if(el) el.innerHTML = html;
+      });
+      Object.entries(amap).forEach(([sel, attrs]) => {
+        const el = document.querySelector(sel);
+        if(!el) return;
+        Object.entries(attrs).forEach(([k, v]) => {
+          if(v == null) el.removeAttribute(k); else el.setAttribute(k, v);
+        });
+      });
+      document.documentElement.lang = lang;
+      document.querySelectorAll('.lang-toggle button').forEach(b => {
+        b.classList.toggle('on', b.dataset.lang === lang);
+      });
+      localStorage.setItem('aether-lang', lang);
+      if(window.ScrollTrigger) setTimeout(() => ScrollTrigger.refresh(), 80);
+    }
+
+    document.querySelectorAll('.lang-toggle button').forEach(b => {
+      b.addEventListener('click', () => apply(b.dataset.lang));
+    });
+
+    const stored = localStorage.getItem('aether-lang') || 'it';
+    apply(stored);
+  })();
+</script>
+
+</body>
+</html>
