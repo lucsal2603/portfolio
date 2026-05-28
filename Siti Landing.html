@@ -1,0 +1,1400 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title>Siti — Total Flow Ecosystem</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" />
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/ScrollTrigger.min.js"></script>
+
+<style>
+  :root{
+    --bg: #F5F2EB;
+    --bg-2: #EFEBE0;
+    --ink: #1A1A1A;
+    --ink-soft: #4A4A4A;
+    --muted: #8A8478;
+    --line: #E4DFD2;
+    --card: #FFFFFF;
+
+    --blue: #BBD3E8;
+    --blue-deep: #7BA8CE;
+    --amber: #F5D27A;
+    --amber-deep: #E0B252;
+    --sage: #B8D4B0;
+    --sage-deep: #7DB079;
+    --coral: #E89A7C;
+    --coral-deep: #D47655;
+
+    --radius-sm: 14px;
+    --radius: 22px;
+    --radius-lg: 32px;
+    --radius-xl: 44px;
+
+    --shadow-soft: 0 1px 2px rgba(26,26,26,.04), 0 8px 24px -8px rgba(26,26,26,.08);
+    --shadow-pop: 0 2px 4px rgba(26,26,26,.06), 0 24px 48px -16px rgba(26,26,26,.14);
+  }
+
+  *{box-sizing:border-box}
+  html,body{margin:0;padding:0}
+  html{scroll-behavior:auto}
+  body{
+    font-family: "Plus Jakarta Sans", system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+    font-feature-settings: "ss01","cv11";
+  }
+
+  .serif{ font-family: "Instrument Serif", serif; font-weight:400; font-style: italic; letter-spacing:-.01em;}
+
+  ::selection{background:var(--amber); color:var(--ink)}
+
+  /* ───────────────── NAV ───────────────── */
+  nav.top{
+    position: fixed; top: 18px; left: 50%; transform: translateX(-50%);
+    z-index: 100;
+    display:flex; align-items:center; gap: 6px;
+    padding: 8px 8px 8px 18px;
+    background: rgba(255,255,255,.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    border: 1px solid rgba(26,26,26,.06);
+    border-radius: 999px;
+    box-shadow: var(--shadow-soft);
+  }
+  nav.top .brand{display:flex;align-items:center;gap:8px;font-weight:700;font-size:15px;margin-right:10px}
+  nav.top .brand .logo{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--coral),var(--amber));display:inline-block;position:relative}
+  nav.top .brand .logo::after{content:"";position:absolute;inset:5px;border-radius:4px;background:var(--bg)}
+  nav.top a.link{font-size:13.5px;color:var(--ink-soft);text-decoration:none;padding:8px 14px;border-radius:999px;transition: background .2s, color .2s; white-space: nowrap;}
+  nav.top a.link:hover{background:rgba(26,26,26,.05); color:var(--ink)}
+  nav.top .cta{font-size:13.5px;font-weight:600;background:var(--ink); color:var(--bg); padding:10px 18px; border-radius:999px; text-decoration:none; white-space: nowrap;}
+  nav.top .cta:hover{background:#2a2a2a}
+
+  /* ───────────────── HERO ───────────────── */
+  .hero{
+    position:relative;
+    min-height: 100vh;
+    padding: 140px 32px 80px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center;
+    overflow:hidden;
+  }
+  .pill{
+    display:inline-flex;align-items:center;gap:10px;
+    padding: 7px 14px 7px 8px;
+    background: rgba(255,255,255,.8);
+    border:1px solid var(--line);
+    border-radius: 999px;
+    font-size: 12.5px; color: var(--ink-soft); font-weight:500;
+    white-space: nowrap;
+  }
+  .pill .dot{width:7px;height:7px;border-radius:50%;background:var(--sage-deep);box-shadow:0 0 0 4px rgba(125,176,121,.18)}
+  .pill b{color:var(--ink);font-weight:600}
+
+  h1.hero-title{
+    font-size: clamp(48px, 8vw, 112px);
+    line-height: .98;
+    letter-spacing: -.035em;
+    font-weight: 700;
+    margin: 22px auto 0;
+    max-width: 1100px;
+    text-wrap: balance;
+  }
+  h1.hero-title .accent{ color: var(--coral-deep); }
+  h1.hero-title em{ font-family: "Instrument Serif", serif; font-style:italic; font-weight:400; color: var(--ink); letter-spacing:-.02em;}
+  p.hero-sub{
+    margin: 22px auto 0;
+    max-width: 580px;
+    font-size: 18px; line-height: 1.5;
+    color: var(--ink-soft);
+    text-wrap: pretty;
+  }
+  .hero-cta{
+    display:inline-flex; align-items:center; gap: 12px;
+    margin-top: 34px;
+  }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    padding: 14px 22px;
+    border-radius: 999px;
+    font-weight: 600; font-size: 14.5px;
+    text-decoration:none;
+    border:none; cursor:pointer;
+    transition: transform .25s cubic-bezier(.34,1.56,.64,1), background .2s, color .2s, box-shadow .2s;
+  }
+  .btn.primary{ background: var(--ink); color: var(--bg); }
+  .btn.primary:hover{ transform: translateY(-2px); box-shadow: 0 12px 24px -10px rgba(26,26,26,.4)}
+  .btn.ghost{ background: transparent; color: var(--ink); border: 1px solid var(--line)}
+  .btn.ghost:hover{ background:#fff; transform: translateY(-2px)}
+  .btn svg{width:16px;height:16px}
+
+  /* Hero scene — floating ritual cards over an organic blob backdrop */
+  .hero-scene{
+    position: relative;
+    width: min(1100px, 100%);
+    height: 500px;
+    margin: 56px auto 0;
+  }
+  .blob{
+    position:absolute;
+    border-radius: 50%;
+    filter: blur(0.5px);
+    opacity: .92;
+    will-change: transform;
+  }
+  .blob.coral{ width: 380px; height: 380px; background: radial-gradient(circle at 30% 30%, #F2B89A, #E89A7C 60%, #D47655); left: 32%; top: 60px;}
+  .blob.blue{ width: 320px; height: 320px; background: radial-gradient(circle at 40% 40%, #D8E8F5, #9BC0DC 65%, #7BA8CE); left: 46%; top: 130px;}
+  .blob.amber{ width: 120px; height: 120px; background: radial-gradient(circle at 40% 40%, #FBE7B0, #F5D27A 80%); left: 26%; top: 290px;}
+  .blob.sage{ width: 90px; height: 90px; background: radial-gradient(circle at 40% 40%, #D6E8CF, #B8D4B0); left: 56%; top: 340px;}
+
+  .ritual-card{
+    position:absolute;
+    background: #fff;
+    border: 1px solid rgba(26,26,26,.05);
+    box-shadow: var(--shadow-pop);
+    padding: 18px 16px;
+    width: 168px;
+    text-align: left;
+    will-change: transform;
+    transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .35s;
+  }
+  .ritual-card:hover{ transform: translateY(-6px) rotate(-1deg) scale(1.03); box-shadow: 0 4px 8px rgba(26,26,26,.06), 0 32px 64px -16px rgba(26,26,26,.22) }
+  .ritual-card .min{
+    position:absolute; top: 12px; right: 12px;
+    font-size: 10.5px; font-weight: 700; letter-spacing: .04em;
+    background: rgba(26,26,26,.06); color: var(--ink); padding: 4px 8px; border-radius: 999px;
+  }
+  .ritual-card .ico{
+    width: 56px; height: 56px;
+    display:flex; align-items:center; justify-content:center;
+    margin: 4px 0 12px;
+  }
+  .ritual-card .ico svg{width: 44px; height: 44px; stroke-width:1.6}
+  .ritual-card .title{ font-weight: 700; font-size: 14px; line-height:1.2; letter-spacing:-.01em; text-transform:uppercase;}
+  .ritual-card .sub{ font-size: 11.5px; color: var(--ink-soft); margin-top:4px}
+  .ritual-card .start{
+    margin-top: 12px; font-size: 11px; font-weight:600;
+    display:inline-block; padding: 6px 12px;
+    background: var(--bg); border: 1px solid var(--line);
+    border-radius: 999px;
+  }
+  .ritual-card.mindful{ border-radius: var(--radius); background: #EAF1F8; left: 6%; top: 50px; transform: rotate(-4deg); }
+  .ritual-card.mindful .ico{ color: var(--blue-deep)}
+  .ritual-card.stretch{ border-radius: var(--radius); background: #FCEFC9; left: 38%; top: 10px; transform: rotate(3deg);}
+  .ritual-card.stretch .ico{ color: var(--amber-deep)}
+  .ritual-card.tea{ border-radius: var(--radius); background: #DEEDD9; right: 26%; top: 60px; transform: rotate(-2deg); width: 158px;}
+  .ritual-card.tea .ico{ color: var(--sage-deep)}
+
+  .focus-card{
+    position:absolute; left: 4%; bottom: -20px;
+    background: #fff; border:1px solid rgba(26,26,26,.05);
+    border-radius: var(--radius);
+    padding: 14px 16px; width: 240px;
+    box-shadow: var(--shadow-pop);
+  }
+  .focus-card .label{font-size:10.5px; font-weight:700; letter-spacing:.06em; color: var(--muted)}
+  .focus-card .row{display:flex; align-items:center; gap: 14px; margin-top: 8px;}
+  .focus-card .donut{position:relative; width:54px; height:54px; flex-shrink: 0;}
+  .focus-card .donut svg{transform:rotate(-90deg)}
+  .focus-card .donut .pct{position:absolute; inset:0; display:flex;align-items:center;justify-content:center; font-weight:700; font-size: 13px;}
+  .focus-card .meta{display:flex;flex-direction:column; min-width: 0;}
+  .focus-card .meta .big{font-size:13px; font-weight:700; white-space: nowrap;}
+  .focus-card .meta .small{font-size:11px;color:var(--ink-soft); white-space: nowrap;}
+
+  .timeline-card{
+    position:absolute; right: 2%; top: 220px;
+    background:#fff; border:1px solid rgba(26,26,26,.05);
+    border-radius: var(--radius);
+    padding: 14px 16px; width: 230px;
+    box-shadow: var(--shadow-pop);
+  }
+  .timeline-card .label{font-size:10.5px; font-weight:700; letter-spacing:.06em; color: var(--muted)}
+  .timeline-card .bars{ display:flex; align-items:flex-end; gap: 3px; height: 38px; margin-top: 8px;}
+  .timeline-card .bars span{ flex:1; background: linear-gradient(180deg, var(--coral), var(--amber)); border-radius: 3px;}
+  .timeline-card .axis{ display:flex; justify-content:space-between; font-size:9.5px; color: var(--muted); margin-top: 6px;}
+  .timeline-card .now{display:flex; align-items:center; gap:6px; font-size:11px; margin-top: 8px; white-space: nowrap;}
+  .timeline-card .now b{font-weight:700}
+  .timeline-card .now .pulse{width:7px;height:7px;border-radius:50%;background:var(--sage-deep); box-shadow:0 0 0 4px rgba(125,176,121,.25); animation: pulse 1.6s infinite}
+  @keyframes pulse{0%{box-shadow:0 0 0 0 rgba(125,176,121,.5)} 70%{box-shadow:0 0 0 8px rgba(125,176,121,0)} 100%{box-shadow:0 0 0 0 rgba(125,176,121,0)}}
+
+  /* ambient dots */
+  .dotgrid{
+    position:absolute; width: 80px; height: 56px;
+    background-image: radial-gradient(circle, var(--blue-deep) 1.2px, transparent 1.4px);
+    background-size: 10px 10px;
+    opacity: .35;
+  }
+  .dotgrid.tl{ left: 2%; top: 30px;}
+  .dotgrid.tr{ right: 4%; top: 60px; background-image: radial-gradient(circle, var(--coral-deep) 1.2px, transparent 1.4px); opacity:.35}
+  .dotgrid.bl{ left: 32%; bottom: 30px; opacity:.3}
+
+  /* squiggle decorations */
+  .squiggle{position:absolute; pointer-events:none}
+
+  /* trusted by row */
+  .trusted{
+    margin: 70px auto 0;
+    display:flex; align-items:center; justify-content:center;
+    gap: 40px; flex-wrap:wrap;
+    color: var(--muted);
+    font-size: 13px;
+  }
+  .trusted .logo{ font-weight:700; font-size: 17px; letter-spacing:-.02em; color: var(--ink-soft); opacity:.7; transition: opacity .3s;}
+  .trusted .logo:hover{opacity:1}
+
+  /* ───────────────── SCROLLYTELLING ───────────────── */
+  .story{
+    position: relative;
+    padding: 120px 32px 80px;
+  }
+  .section-eyebrow{
+    display:inline-flex; align-items:center; gap: 8px;
+    font-size: 12px; font-weight: 700; letter-spacing: .14em;
+    color: var(--muted); text-transform:uppercase;
+  }
+  .section-eyebrow::before{
+    content:""; width: 18px; height:1px; background: var(--muted);
+  }
+  .section-title{
+    font-size: clamp(36px, 5.4vw, 72px);
+    line-height: 1.02;
+    letter-spacing: -.03em;
+    font-weight: 700;
+    margin: 14px 0 0;
+    max-width: 16ch;
+  }
+  .section-sub{
+    margin-top: 18px;
+    max-width: 540px;
+    color: var(--ink-soft);
+    font-size: 17px;
+    line-height: 1.5;
+  }
+
+  .story-pin{
+    position: relative;
+    max-width: 1280px; margin: 0 auto;
+    display: grid;
+    grid-template-columns: 1fr 1.1fr;
+    gap: 64px;
+    align-items: start;
+  }
+  .story-left{ position: relative; padding-top: 40px; min-height: 1800px;}
+  .story-stages{ margin-top: 48px; position: relative;}
+  /* spread the stages vertically so each gets its own scroll window */
+  .stage-item + .stage-item{ margin-top: 360px;}
+  .story-stages::before{
+    content:""; position:absolute; left: 19px; top:0; bottom:0;
+    width: 2px; background: var(--line);
+  }
+  .story-stages .progress{
+    position:absolute; left: 19px; top: 0;
+    width: 2px; height: 0;
+    background: linear-gradient(180deg, var(--coral), var(--amber), var(--blue-deep), var(--sage-deep));
+  }
+  .stage-item{
+    position: relative;
+    padding: 14px 0 14px 56px;
+    cursor: pointer;
+    opacity: .35;
+    transition: opacity .4s ease;
+  }
+  .stage-item.active{ opacity: 1;}
+  .stage-item .num{
+    position:absolute; left: 0; top: 14px;
+    width: 40px; height: 40px;
+    border-radius: 50%;
+    background: var(--bg);
+    border: 2px solid var(--line);
+    display:flex; align-items:center; justify-content:center;
+    font-weight: 700; font-size: 13px;
+    color: var(--ink-soft);
+    transition: all .4s ease;
+  }
+  .stage-item.active .num{
+    background: var(--ink); color: var(--bg); border-color: var(--ink);
+    transform: scale(1.05);
+  }
+  .stage-item .label{ font-size: 11.5px; font-weight:700; letter-spacing:.14em; color: var(--muted); text-transform: uppercase;}
+  .stage-item.active .label{ color: var(--coral-deep)}
+  .stage-item .t{ font-size: 24px; font-weight: 700; letter-spacing:-.02em; line-height:1.15; margin-top: 4px;}
+  .stage-item .d{ font-size: 14.5px; color: var(--ink-soft); margin-top: 6px; max-width: 380px;}
+
+  .story-right{
+    position: sticky; top: 80px;
+    /* Adapt to viewport so the panel never overflows the visible area */
+    height: min(640px, calc(100vh - 120px));
+    min-height: 480px;
+    border-radius: var(--radius-lg);
+    background: linear-gradient(160deg, #F2E9D6 0%, #E8DCC2 100%);
+    border: 1px solid #D9CFB8;
+    box-shadow: 0 1px 2px rgba(26,26,26,.04), 0 30px 60px -30px rgba(26,26,26,.16);
+    overflow: hidden;
+  }
+  /* subtle ambient decoration so the canvas never feels empty */
+  .story-right::before{
+    content:""; position:absolute; width: 280px; height: 280px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,154,124,.22), transparent 70%);
+    top: -60px; right: -60px; pointer-events:none;
+  }
+  .story-right::after{
+    content:""; position:absolute; width: 220px; height: 220px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(187,211,232,.35), transparent 70%);
+    bottom: -50px; left: -40px; pointer-events:none;
+  }
+  .stage-canvas{
+    position: absolute; inset: 0;
+    display:flex; align-items:center; justify-content:center;
+    padding: 32px;
+  }
+  .stage-canvas[data-stage]{ opacity:0; transform: translateY(20px) scale(.96); transition: opacity .6s cubic-bezier(.34,1.56,.64,1), transform .6s cubic-bezier(.34,1.56,.64,1);}
+  .stage-canvas.active{ opacity: 1; transform: none; }
+
+  /* Stage visuals */
+  .stage-vis{
+    width: 100%; max-width: 480px;
+    background: #fff;
+    border-radius: var(--radius);
+    padding: 28px;
+    box-shadow: var(--shadow-pop);
+    position: relative;
+    z-index: 1;
+  }
+  .stage-vis h4{ margin:0; font-size: 12px; font-weight:700; letter-spacing:.12em; color: var(--muted); text-transform:uppercase;}
+  .stage-vis .stage-title{ font-size: 22px; font-weight:700; letter-spacing:-.01em; margin-top:6px;}
+
+  /* stage 1 — task list */
+  .task{
+    display:flex; align-items:center; gap: 12px;
+    padding: 12px 14px;
+    background: var(--bg);
+    border-radius: var(--radius-sm);
+    margin-top: 10px;
+  }
+  .task .check{
+    width: 22px; height: 22px; border-radius: 8px;
+    border: 2px solid var(--line); background: #fff;
+    display:flex;align-items:center;justify-content:center;
+    color: transparent;
+  }
+  .task.done .check{ background: var(--sage); border-color: var(--sage-deep); color: var(--ink);}
+  .task .name{ font-size: 14px; font-weight:600; flex:1; }
+  .task.done .name{ text-decoration: line-through; color: var(--muted); text-decoration-thickness: 1.5px;}
+  .task .time{ font-size: 11.5px; color: var(--muted); font-weight:600;}
+
+  /* stage 2 — ritual chips */
+  .chips{ display:flex; flex-wrap:wrap; gap: 10px; margin-top: 16px;}
+  .chip{
+    display:flex; align-items:center; gap:8px;
+    padding: 10px 14px;
+    border-radius: 999px;
+    font-size: 13px; font-weight: 600;
+    background:#fff; border:1px solid var(--line);
+    cursor:pointer;
+    transition: transform .3s cubic-bezier(.34,1.56,.64,1), background .25s, color .25s, border-color .25s;
+  }
+  .chip svg{width:14px;height:14px}
+  .chip.sel.blue{ background: var(--blue); border-color: var(--blue-deep); color: var(--ink);}
+  .chip.sel.amber{ background: var(--amber); border-color: var(--amber-deep);}
+  .chip.sel.sage{ background: var(--sage); border-color: var(--sage-deep);}
+
+  /* stage 3 — timer */
+  .timer{
+    margin: 14px auto 0;
+    width: 220px; height: 220px;
+    position: relative;
+    display:flex; align-items:center; justify-content:center;
+  }
+  .timer svg{ position: absolute; inset:0; transform:rotate(-90deg);}
+  .timer .digits{ font-size: 42px; font-weight: 700; letter-spacing: -.03em; font-variant-numeric: tabular-nums;}
+  .timer .lbl{ font-size: 11px; letter-spacing:.16em; color: var(--muted); text-transform: uppercase; margin-top: 4px;}
+  .timer-meta{ display:flex; justify-content:center; gap:30px; margin-top: 16px;}
+  .timer-meta div{ text-align:center;}
+  .timer-meta b{ font-size: 18px; display:block; font-weight:700;}
+  .timer-meta span{ font-size: 11px; color: var(--muted); letter-spacing:.06em;}
+
+  /* stage 4 — review chart */
+  .review-bars{ display:flex; align-items:flex-end; gap: 10px; height: 140px; margin-top: 18px; padding: 0 4px;}
+  .review-bars .col{ flex:1; height: 100%; display:flex; flex-direction:column; align-items:center; justify-content:flex-end; gap: 6px;}
+  .review-bars .bar{ width: 100%; border-radius: 8px 8px 4px 4px; background: var(--ink); position:relative; overflow:hidden;}
+  .review-bars .bar::after{
+    content:""; position:absolute; inset:0;
+    background: linear-gradient(180deg, var(--coral), var(--amber));
+  }
+  .review-bars .col:nth-child(1) .bar::after{ background: linear-gradient(180deg, var(--coral), var(--amber)) }
+  .review-bars .col:nth-child(2) .bar::after{ background: linear-gradient(180deg, var(--amber-deep), var(--amber))}
+  .review-bars .col:nth-child(3) .bar::after{ background: linear-gradient(180deg, var(--blue-deep), var(--blue))}
+  .review-bars .col:nth-child(4) .bar::after{ background: linear-gradient(180deg, var(--sage-deep), var(--sage))}
+  .review-bars .col span{ font-size: 10.5px; color: var(--muted); font-weight:600;}
+
+  /* ───────────────── FEATURES ───────────────── */
+  .features{
+    padding: 120px 32px;
+    max-width: 1280px; margin: 0 auto;
+  }
+  .features-head{ display:flex; justify-content:space-between; align-items:flex-end; gap: 40px; margin-bottom: 56px; flex-wrap:wrap;}
+  .grid-features{
+    display: grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 230px;
+    gap: 16px;
+  }
+  .f-card{
+    background: #fff;
+    border: 1px solid rgba(26,26,26,.05);
+    border-radius: var(--radius);
+    padding: 24px;
+    position: relative;
+    overflow: hidden;
+    box-shadow: var(--shadow-soft);
+    transition: transform .4s cubic-bezier(.34,1.56,.64,1), box-shadow .4s;
+    will-change: transform;
+  }
+  .f-card:hover{ transform: translateY(-8px); box-shadow: var(--shadow-pop);}
+  .f-card h3{ font-size: 19px; font-weight: 700; letter-spacing:-.015em; margin: 0; }
+  .f-card p{ font-size: 13.5px; color: var(--ink-soft); margin: 6px 0 0; line-height:1.45;}
+  .f-card .ico-block{
+    width: 48px; height: 48px;
+    border-radius: 14px;
+    display:flex; align-items:center; justify-content:center;
+    margin-bottom: 14px;
+  }
+  .f-card .ico-block svg{ width: 24px; height: 24px; stroke-width: 1.8;}
+
+  .f-card.x2{ grid-column: span 2;}
+  .f-card.x3{ grid-column: span 3;}
+  .f-card.x4{ grid-column: span 4;}
+  .f-card.y2{ grid-row: span 2;}
+
+  .f-card.flow{ grid-column: span 3; grid-row: span 2; background: linear-gradient(140deg, #F2E3D4 0%, #EAD2BB 100%);}
+  .f-card.flow .ico-block{ background: rgba(255,255,255,.6); color: var(--coral-deep)}
+  .f-card.flow .visual{
+    position: absolute; right: -40px; bottom: -40px;
+    width: 300px; height: 300px;
+  }
+
+  .f-card.calendar .ico-block{ background: #EAF1F8; color: var(--blue-deep)}
+  .f-card.team .ico-block{ background: #DEEDD9; color: var(--sage-deep)}
+  .f-card.insights{ grid-column: span 3; background: linear-gradient(140deg, #EAF1F8 0%, #D3E2EF 100%);}
+  .f-card.insights .ico-block{ background: rgba(255,255,255,.6); color: var(--blue-deep)}
+  .f-card.rituals .ico-block{ background: #FCEFC9; color: var(--amber-deep)}
+  .f-card.ai .ico-block{ background: #F5E6DC; color: var(--coral-deep)}
+
+  .mini-bars{ display:flex; align-items:flex-end; gap: 4px; height: 60px; margin-top: auto; padding-top: 14px;}
+  .mini-bars span{ flex:1; background: var(--ink); opacity:.85; border-radius: 3px;}
+  .calendar-grid{ display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; margin-top: 14px;}
+  .calendar-grid i{ display:block; aspect-ratio: 1; border-radius: 5px; background: var(--bg-2);}
+  .calendar-grid i.b{ background: var(--blue);}
+  .calendar-grid i.a{ background: var(--amber);}
+  .calendar-grid i.s{ background: var(--sage);}
+  .calendar-grid i.c{ background: var(--coral); opacity:.6}
+
+  .avatar-row{ display:flex; margin-top: 14px;}
+  .avatar-row .av{ width: 36px; height: 36px; border-radius: 50%; border: 2.5px solid #fff; margin-left: -8px;}
+  .avatar-row .av:first-child{margin-left:0}
+  .av.a1{background: linear-gradient(135deg, var(--coral), var(--amber))}
+  .av.a2{background: linear-gradient(135deg, var(--blue-deep), var(--blue))}
+  .av.a3{background: linear-gradient(135deg, var(--sage-deep), var(--sage))}
+  .av.a4{background: linear-gradient(135deg, var(--amber-deep), var(--coral))}
+  .av.a5{background: var(--bg-2); color: var(--ink-soft); font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center;}
+
+  .ai-prompt{
+    margin-top: 14px;
+    padding: 12px 14px;
+    background: #fff;
+    border-radius: 14px;
+    font-size: 12.5px; color: var(--ink-soft);
+    border: 1px dashed var(--line);
+  }
+  .ai-prompt b{ color: var(--ink)}
+  .ai-prompt .cursor{ display:inline-block; width:1px; height:13px; background: var(--ink); margin-left:2px; vertical-align:-2px; animation: blink 1s steps(2) infinite;}
+  @keyframes blink{50%{opacity:0}}
+
+  /* ───────────────── ANALYTICS ───────────────── */
+  .analytics{
+    background: var(--ink);
+    color: var(--bg);
+    margin: 60px 24px;
+    border-radius: var(--radius-xl);
+    padding: 90px 56px;
+    overflow: hidden;
+    position: relative;
+  }
+  .analytics::before{
+    content:""; position: absolute; top: -120px; right: -120px;
+    width: 360px; height: 360px; border-radius: 50%;
+    background: radial-gradient(circle, rgba(232,154,124,.4), transparent 70%);
+    filter: blur(20px);
+  }
+  .analytics-head{
+    max-width: 720px; margin-bottom: 56px; position: relative;
+  }
+  .analytics .section-eyebrow{ color: rgba(245,242,235,.6);}
+  .analytics .section-eyebrow::before{ background: rgba(245,242,235,.6);}
+  .analytics .section-sub{ color: rgba(245,242,235,.7);}
+
+  .analytics-grid{
+    display: grid; grid-template-columns: 1.4fr 1fr; gap: 16px;
+  }
+  .a-card{
+    background: rgba(255,255,255,.04);
+    border: 1px solid rgba(255,255,255,.08);
+    border-radius: var(--radius);
+    padding: 26px 28px;
+    position: relative;
+  }
+  .a-card .a-label{ font-size: 11.5px; letter-spacing: .14em; text-transform:uppercase; color: rgba(245,242,235,.55); font-weight:700;}
+  .a-card .a-num{ font-size: 42px; font-weight: 700; letter-spacing:-.02em; margin-top:6px; font-variant-numeric: tabular-nums;}
+  .a-card .a-delta{ font-size: 12.5px; color: var(--sage); margin-top: 4px; font-weight:600;}
+
+  .chart-line{ position: relative; height: 220px; margin-top: 28px;}
+  .chart-line svg{ width: 100%; height: 100%; overflow:visible;}
+  .chart-legend{ display:flex; gap: 20px; margin-bottom: 18px; flex-wrap: wrap;}
+  .chart-legend div{ font-size: 12px; display:flex; align-items:center; gap: 6px; color: rgba(245,242,235,.7);}
+  .chart-legend i{ width: 9px; height: 9px; border-radius: 50%; display:inline-block;}
+
+  .chart-bars{ display:flex; align-items:flex-end; gap: 10px; height: 200px; margin-top: 24px; padding-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,.08); position: relative;}
+  .chart-bars .col{ flex:1; display:flex; flex-direction:column; align-items:center; position:relative; height: 100%;}
+  .chart-bars .col .b{
+    width: 70%; background: linear-gradient(180deg, var(--coral) 0%, var(--amber) 100%);
+    border-radius: 6px 6px 4px 4px;
+    margin-top: auto;
+    transform-origin: bottom;
+  }
+  .chart-bars .col .b.b2{ background: linear-gradient(180deg, var(--blue) 0%, var(--blue-deep) 100%);}
+  .chart-bars .col .b.b3{ background: linear-gradient(180deg, var(--sage) 0%, var(--sage-deep) 100%);}
+  .chart-bars .col .lbl{ font-size: 10.5px; color: rgba(245,242,235,.5); margin-top: 8px; position: absolute; bottom: -22px;}
+
+  .donut-row{ display:flex; gap: 20px; align-items:center; margin-top: 26px;}
+  .donut-big{ position:relative; width: 140px; height: 140px;}
+  .donut-big svg{ transform: rotate(-90deg);}
+  .donut-big .pct{ position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size: 28px; font-weight:700; letter-spacing:-.02em;}
+  .donut-list{ flex:1;}
+  .donut-list .li{ display:flex; justify-content:space-between; font-size: 13px; padding: 7px 0; border-bottom: 1px dashed rgba(255,255,255,.1);}
+  .donut-list .li b{ font-weight:700;}
+  .donut-list .li:last-child{border-bottom:none}
+
+  /* ───────────────── CTA ───────────────── */
+  .cta-block{
+    text-align: center;
+    padding: 140px 32px 100px;
+    position: relative;
+    overflow: hidden;
+  }
+  .cta-block h2{
+    font-size: clamp(48px, 7vw, 96px);
+    line-height: 1;
+    letter-spacing: -.035em;
+    font-weight: 700;
+    max-width: 14ch;
+    margin: 0 auto;
+  }
+  .cta-block .serif{ color: var(--coral-deep);}
+  .cta-block p{ margin: 22px auto 0; max-width: 520px; font-size: 17px; color: var(--ink-soft);}
+
+  .cta-deco{ position: absolute; pointer-events:none;}
+  .cta-deco.b1{ width: 180px; height: 180px; border-radius: 50%; background: var(--coral); opacity: .55; left: 12%; top: 30%; filter: blur(2px);}
+  .cta-deco.b2{ width: 140px; height: 140px; border-radius: 50%; background: var(--blue); opacity: .7; right: 14%; top: 24%;}
+  .cta-deco.b3{ width: 80px; height: 80px; border-radius: 50%; background: var(--sage); opacity: .8; right: 22%; bottom: 30%;}
+  .cta-deco.b4{ width: 60px; height: 60px; border-radius: 50%; background: var(--amber); opacity: .9; left: 22%; bottom: 28%;}
+
+  footer{
+    border-top: 1px solid var(--line);
+    padding: 40px 32px;
+    display:flex; justify-content:space-between; align-items:center;
+    flex-wrap:wrap; gap: 20px;
+    font-size: 13px; color: var(--muted);
+  }
+  footer .brand{display:flex;align-items:center;gap:10px;font-weight:700;color:var(--ink);font-size:15px}
+  footer .brand .logo{width:22px;height:22px;border-radius:7px;background:linear-gradient(135deg,var(--coral),var(--amber));position:relative}
+  footer .brand .logo::after{content:"";position:absolute;inset:5px;border-radius:4px;background:var(--bg)}
+  footer nav{display:flex;gap:24px}
+  footer nav a{color:var(--ink-soft);text-decoration:none}
+
+  /* ───────────────── RESPONSIVE ───────────────── */
+  @media (max-width: 980px){
+    /* STORY → stacked: hide the desktop right-panel and inline each visual under its stage */
+    .story{ padding: 90px 20px 60px;}
+    .story-pin{ grid-template-columns: 1fr; gap: 28px;}
+    .story-right{ display: none;}
+    .story-left{ min-height: 0;}
+    .stage-item + .stage-item{ margin-top: 0;}
+    .story-stages{ margin-top: 32px;}
+    .stage-item{ opacity: 1; padding-left: 52px;}
+    .stage-item .num{ width: 36px; height: 36px;}
+    .stage-stages::before, .story-stages::before{ left: 17px;}
+    .story-stages .progress{ display: none;}
+
+    .mobile-vis{
+      margin-top: 16px; margin-left: -52px;
+      background: linear-gradient(160deg, #FBF8F0 0%, #F0EADB 100%);
+      border: 1px solid var(--line);
+      border-radius: var(--radius-lg);
+      padding: 24px 18px;
+      display:flex; align-items:center; justify-content:center;
+      position: relative; overflow: hidden;
+    }
+    .mobile-vis::before{
+      content:""; position:absolute; width: 180px; height: 180px; border-radius: 50%;
+      background: radial-gradient(circle, rgba(232,154,124,.18), transparent 70%);
+      top: -40px; right: -40px;
+    }
+    .mobile-vis .stage-vis{ max-width: 100%; padding: 22px; z-index: 1;}
+    .mobile-vis .stage-vis .timer{ width: 180px; height: 180px;}
+    .mobile-vis .stage-vis .timer svg{ width: 180px; height: 180px;}
+    .mobile-vis .stage-vis .timer .digits{ font-size: 34px;}
+
+    /* GLOBAL */
+    .grid-features{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 220px;}
+    .f-card.x2,.f-card.x3,.f-card.x4,.f-card.flow,.f-card.insights{ grid-column: span 2;}
+    .f-card.y2,.f-card.flow{ grid-row: auto;}
+    .f-card.flow{ min-height: 320px;}
+    .f-card.flow .visual{ width: 220px; height: 220px; right: -30px; bottom: -30px;}
+    .features{ padding: 90px 20px;}
+    .features-head{ margin-bottom: 36px; gap: 16px;}
+    .analytics-grid{ grid-template-columns: 1fr;}
+    .analytics{ padding: 60px 24px; margin: 40px 16px; border-radius: 32px;}
+    .a-card .a-num{ font-size: 32px;}
+    .a-card{ padding: 22px 20px;}
+    .donut-row{ flex-direction:column; align-items:flex-start; gap: 18px;}
+    .donut-list{ width: 100%;}
+    nav.top a.link{ display:none;}
+    nav.top{ top: 12px; padding: 6px 6px 6px 14px;}
+    .hero{ padding: 110px 20px 60px;}
+    .hero-scene{ height: 360px; margin-top: 40px;}
+    .ritual-card.tea{ display:none;}
+    .focus-card{ width: 180px; left: 2%; bottom: 0;}
+    .timeline-card{ width: 200px; right: 2%;}
+    .ritual-card{ width: 140px; padding: 14px 12px;}
+    .ritual-card .ico{ width: 44px; height: 44px;}
+    .ritual-card .ico svg{ width: 36px; height: 36px;}
+    h1.hero-title{ font-size: clamp(40px, 11vw, 64px);}
+    .trusted{ gap: 18px; font-size: 12px; margin-top: 50px;}
+    .trusted .logo{ font-size: 14px;}
+    .cta-block{ padding: 100px 20px 80px;}
+    footer{ flex-direction: column; align-items: flex-start; gap: 16px;}
+    footer nav{ flex-wrap: wrap;}
+  }
+  @media (max-width: 560px){
+    .grid-features{ grid-template-columns: 1fr; grid-auto-rows: auto;}
+    .f-card.x2,.f-card.x3,.f-card.x4,.f-card.flow,.f-card.insights{ grid-column: span 1;}
+    .f-card{ min-height: 200px;}
+    .hero-scene{ height: 320px;}
+    .focus-card, .timeline-card{ position: static; width: 100%; margin-top: 12px; box-shadow: var(--shadow-soft);}
+    .ritual-card.tea{ display:none;}
+    .hero-cta{ flex-direction: column; width: 100%;}
+    .hero-cta .btn{ width: 100%; justify-content:center;}
+  }
+</style>
+</head>
+<body>
+
+<!--
+  ────────────────────────────────────────────────────────────────
+  PROPOSTA DI ARCHITETTURA COMPONENTI (Next.js / App Router)
+  ────────────────────────────────────────────────────────────────
+  app/
+    layout.tsx                  → fonts, Providers (Lenis smooth-scroll)
+    page.tsx                    → compone le sezioni
+    globals.css                 → tailwind base + tokens (--bg, --coral…)
+  components/
+    nav/
+      TopBar.tsx                → pill di navigazione fissa
+    hero/
+      Hero.tsx                  → wrapper sezione hero
+      RitualCard.tsx            → card fluttuante riutilizzabile (props: icon, label, duration, tone)
+      FocusDonut.tsx            → mini-card "Focus Score" con donut SVG
+      TimelineMini.tsx          → mini-card timeline con bars
+      BlobBackdrop.tsx          → gradienti morbidi animati (Framer Motion)
+    story/                      ← Scrollytelling Stage 1→4
+      StorySection.tsx          → ScrollTrigger.pin del container destro
+      StageList.tsx             → lista step (sinistra)
+      StageCanvas.tsx           → switch dei visual (destra), gestito da useScrollProgress
+      stages/Stage1Tasks.tsx
+      stages/Stage2Rituals.tsx
+      stages/Stage3Flow.tsx
+      stages/Stage4Review.tsx
+    features/
+      FeatureGrid.tsx           → bento grid con stagger reveal (useInView)
+      FeatureCard.tsx           → micro-interazioni hover ("float")
+    analytics/
+      AnalyticsSection.tsx
+      LineChart.tsx             → DrawSVGPlugin / pathLength per disegno on-enter
+      BarChart.tsx              → bars con stagger scaleY
+      DonutChart.tsx
+    cta/CTABlock.tsx
+    ui/                         → primitive: Button, Pill, Eyebrow, Icon
+  lib/
+    motion.ts                   → ease tokens (Framer Motion + GSAP)
+    useScrollytelling.ts        → hook che mappa scroll → step attivo
+  
+  Stack & convenzioni:
+  • Tailwind con tokens nel theme.extend.colors (palette pastello)
+  • Framer Motion per micro-interazioni (hover float, card pop)
+  • GSAP + ScrollTrigger per timeline scroll-driven (pin, scrub)
+  • DrawSVGPlugin per disegnare path nel viewport
+  • Lenis smooth-scroll opzionale per sincronia animazioni
+  ────────────────────────────────────────────────────────────────
+-->
+
+<nav class="top">
+  <span class="brand"><span class="logo"></span>Siti</span>
+  <a class="link" href="#product">Product</a>
+  <a class="link" href="#rituals">Rituals</a>
+  <a class="link" href="#analytics">Analytics</a>
+  <a class="link" href="#pricing">Pricing</a>
+  <a class="cta" href="#">Start free</a>
+</nav>
+
+<!-- ═══════════════════════════════ HERO ═══════════════════════════════ -->
+<section class="hero" id="hero">
+  <span class="pill" data-anim="fade-up"><span class="dot"></span><b>v2.0</b> · Team Flow now in beta</span>
+  <h1 class="hero-title" data-anim="fade-up">
+    Design your <em>focus</em><br />
+    optimize your <span class="accent">flow.</span>
+  </h1>
+  <p class="hero-sub" data-anim="fade-up">
+    Siti è il sistema operativo per il flow individuale e di team. Pianifica rituali, entra in deep work, misura la performance — senza sforzo.
+  </p>
+  <div class="hero-cta" data-anim="fade-up">
+    <a class="btn primary" href="#">Start your first ritual
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <a class="btn ghost" href="#">Watch demo</a>
+  </div>
+
+  <!-- HERO SCENE ─ Total Flow Ecosystem -->
+  <div class="hero-scene" id="hero-scene">
+    <div class="blob coral" data-parallax="0.25"></div>
+    <div class="blob blue"  data-parallax="0.18"></div>
+    <div class="blob amber" data-parallax="0.4"></div>
+    <div class="blob sage"  data-parallax="0.32"></div>
+
+    <span class="dotgrid tl"></span>
+    <span class="dotgrid tr"></span>
+    <span class="dotgrid bl"></span>
+
+    <svg class="squiggle" style="left:6%;top:6px;width:60px;height:30px" viewBox="0 0 60 30" fill="none" stroke="#7BA8CE" stroke-width="2" stroke-linecap="round"><path d="M2 15 Q15 2 28 15 T58 15"/></svg>
+    <svg class="squiggle" style="right:8%;top:8px;width:50px;height:50px" viewBox="0 0 50 50" fill="none" stroke="#E89A7C" stroke-width="2" stroke-linecap="round"><path d="M5 10 L10 5 M20 5 L25 10 M5 30 L10 25 M20 25 L25 30"/></svg>
+    <svg class="squiggle" style="left:46%;bottom:-10px;width:80px;height:30px" viewBox="0 0 80 30" fill="none" stroke="#7DB079" stroke-width="2" stroke-linecap="round"><path d="M2 15 Q20 5 40 15 T78 15"/></svg>
+
+    <!-- ritual cards -->
+    <div class="ritual-card mindful" data-card="0">
+      <span class="min">5 MIN</span>
+      <div class="ico">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="24" cy="14" r="4.5"/>
+          <path d="M14 36c0-6 4.5-10 10-10s10 4 10 10"/>
+          <path d="M8 22c2-1 4-1 6 0M34 22c2-1 4-1 6 0"/>
+          <path d="M6 30c3-1 6-1 9 0M33 30c3-1 6-1 9 0"/>
+        </svg>
+      </div>
+      <div class="title">Mindful Pause</div>
+      <div class="sub">Breathing · 4-7-8</div>
+      <span class="start">▶  Start</span>
+    </div>
+
+    <div class="ritual-card stretch" data-card="1">
+      <span class="min">3 MIN</span>
+      <div class="ico">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <circle cx="22" cy="10" r="3.5"/>
+          <path d="M22 14v10l-8 6M22 24l8 6"/>
+          <path d="M22 24v10M16 38l6-4 6 4"/>
+          <path d="M34 8l4-4M38 4l-4-2M38 4l2 4"/>
+        </svg>
+      </div>
+      <div class="title">Stretch & Move</div>
+      <div class="sub">Energise · Posture</div>
+      <span class="start">▶  Start</span>
+    </div>
+
+    <div class="ritual-card tea" data-card="2">
+      <span class="min">10 MIN</span>
+      <div class="ico">
+        <svg viewBox="0 0 48 48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M10 20h22v12a6 6 0 0 1-6 6H16a6 6 0 0 1-6-6V20Z"/>
+          <path d="M32 22h4a4 4 0 0 1 0 8h-4"/>
+          <path d="M16 14c0-2 2-2 2-4M22 14c0-2 2-2 2-4M28 14c0-2 2-2 2-4"/>
+        </svg>
+      </div>
+      <div class="title">Mindful Tea</div>
+      <div class="sub">Reset · Hydrate</div>
+      <span class="start">▶  Start</span>
+    </div>
+
+    <!-- focus mini card -->
+    <div class="focus-card" data-card="3">
+      <div class="label">FOCUS SCORE</div>
+      <div class="row">
+        <div class="donut">
+          <svg width="54" height="54" viewBox="0 0 54 54">
+            <circle cx="27" cy="27" r="22" stroke="#EFEBE0" stroke-width="6" fill="none"/>
+            <circle cx="27" cy="27" r="22" stroke="#E89A7C" stroke-width="6" fill="none"
+              stroke-dasharray="138.2" stroke-dashoffset="138.2" stroke-linecap="round" class="donut-ring"/>
+          </svg>
+          <span class="pct">82%</span>
+        </div>
+        <div class="meta">
+          <span class="big">Deep Work</span>
+          <span class="small">2h 14m today</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- timeline mini card -->
+    <div class="timeline-card" data-card="4">
+      <div class="label">TODAY'S FLOW</div>
+      <div class="bars">
+        <span style="height:30%"></span><span style="height:55%"></span><span style="height:42%"></span>
+        <span style="height:80%"></span><span style="height:95%"></span><span style="height:70%"></span>
+        <span style="height:60%"></span><span style="height:48%"></span><span style="height:75%"></span>
+        <span style="height:88%"></span><span style="height:65%"></span><span style="height:52%"></span>
+      </div>
+      <div class="axis"><span>9AM</span><span>12PM</span><span>3PM</span><span>6PM</span></div>
+      <div class="now"><span class="pulse"></span>Currently <b>·  In Flow</b></div>
+    </div>
+  </div>
+
+  <div class="trusted">
+    Trusted by calm-driven teams at
+    <span class="logo">Atlas&times;</span>
+    <span class="logo">Northwind</span>
+    <span class="logo">Lumen+</span>
+    <span class="logo">Caelum</span>
+    <span class="logo">Veridian</span>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ STORY (Scrollytelling) ═══════════════════════════════ -->
+<section class="story" id="product">
+  <div class="story-pin">
+    <div class="story-left">
+      <span class="section-eyebrow">How it works</span>
+      <h2 class="section-title">From scattered<br /> to <em class="serif">in flow.</em></h2>
+      <p class="section-sub">Quattro tappe per trasformare le tue giornate. Niente burnout, niente reazioni — solo ritmo, attenzione, risultati.</p>
+
+      <div class="story-stages" id="stages">
+        <div class="progress" id="stage-progress"></div>
+        <div class="stage-item active" data-stage="0">
+          <div class="num">01</div>
+          <div class="label">Stage 01 · Identify</div>
+          <div class="t">Identify your task</div>
+          <div class="d">Capture goals, deadlines e priorità in una vista unica. Siti decide cosa merita il tuo focus oggi.</div>
+        </div>
+        <div class="stage-item" data-stage="1">
+          <div class="num">02</div>
+          <div class="label">Stage 02 · Set rituals</div>
+          <div class="t">Choose your rituals</div>
+          <div class="d">Una libreria di rituali — respiro, stretch, tea — che si adattano al tuo bioritmo e all'energia residua.</div>
+        </div>
+        <div class="stage-item" data-stage="2">
+          <div class="num">03</div>
+          <div class="label">Stage 03 · Enter flow</div>
+          <div class="t">Enter deep work</div>
+          <div class="d">Timer adattivi, notifiche silenziate, soundscape su misura. Siti protegge la tua finestra di flow.</div>
+        </div>
+        <div class="stage-item" data-stage="3">
+          <div class="num">04</div>
+          <div class="label">Stage 04 · Review</div>
+          <div class="t">Review &amp; plan ahead</div>
+          <div class="d">Indici di Focus, Calm e Cohesion. Capisci cosa ha funzionato e ricalibra la settimana.</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="story-right" id="story-right">
+      <!-- Stage 1 -->
+      <div class="stage-canvas active" data-stage="0">
+        <div class="stage-vis">
+          <h4>MY DAY · Tuesday</h4>
+          <div class="stage-title">Identify your tasks</div>
+          <div class="task done"><div class="check">✓</div><div class="name">Morning sync · Product</div><div class="time">9:00</div></div>
+          <div class="task done"><div class="check">✓</div><div class="name">Review brief Acme Co.</div><div class="time">10:15</div></div>
+          <div class="task" style="background:#FCEFC9"><div class="check" style="border-color:var(--amber-deep);background:var(--amber)"></div><div class="name">Draft Q3 roadmap</div><div class="time">11:00</div></div>
+          <div class="task"><div class="check"></div><div class="name">1:1 with Aisha</div><div class="time">14:30</div></div>
+          <div class="task"><div class="check"></div><div class="name">Deep work — Strategy doc</div><div class="time">15:30</div></div>
+        </div>
+      </div>
+      <!-- Stage 2 -->
+      <div class="stage-canvas" data-stage="1">
+        <div class="stage-vis">
+          <h4>RITUAL LIBRARY</h4>
+          <div class="stage-title">Compose your rituals</div>
+          <p style="font-size:13.5px;color:var(--ink-soft);margin:6px 0 0">Adatta il mix in base al momento della giornata e all'energia che hai.</p>
+          <div class="chips">
+            <div class="chip sel blue"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="8" r="3"/><path d="M5 21c0-4 3-7 7-7s7 3 7 7"/></svg> Mindful pause · 5m</div>
+            <div class="chip sel amber"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 4v6l4 4M8 18l4-4"/></svg> Stretch · 3m</div>
+            <div class="chip sel sage"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M5 11h12v5a4 4 0 0 1-4 4H9a4 4 0 0 1-4-4v-5Z"/><path d="M17 12h2a2 2 0 0 1 0 4h-2"/></svg> Mindful tea · 10m</div>
+            <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M6 4h12M8 4v6a4 4 0 0 0 8 0V4"/></svg> Hydration</div>
+            <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="8"/><path d="M12 7v5l3 2"/></svg> Pomodoro · 25m</div>
+            <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 14c4-8 12-8 16 0M8 14a4 4 0 0 0 8 0"/></svg> Eye rest</div>
+            <div class="chip"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M4 18c2-3 4-3 6-1s4 2 6-1 4-2 4-2"/></svg> Walk · 12m</div>
+          </div>
+        </div>
+      </div>
+      <!-- Stage 3 -->
+      <div class="stage-canvas" data-stage="2">
+        <div class="stage-vis" style="text-align:center">
+          <h4>IN FLOW · Strategy Doc</h4>
+          <div class="stage-title">Enter deep work</div>
+          <div class="timer">
+            <svg width="220" height="220" viewBox="0 0 220 220">
+              <circle cx="110" cy="110" r="92" stroke="#EFEBE0" stroke-width="10" fill="none"/>
+              <circle id="timer-ring" cx="110" cy="110" r="92" stroke="url(#tgrad)" stroke-width="10" fill="none"
+                stroke-linecap="round" stroke-dasharray="577.9" stroke-dashoffset="577.9"/>
+              <defs>
+                <linearGradient id="tgrad" x1="0" y1="0" x2="220" y2="220">
+                  <stop offset="0%" stop-color="#E89A7C"/>
+                  <stop offset="100%" stop-color="#F5D27A"/>
+                </linearGradient>
+              </defs>
+            </svg>
+            <div>
+              <div class="digits" id="timer-digits">24:00</div>
+              <div class="lbl">Focus block · 25 min</div>
+            </div>
+          </div>
+          <div class="timer-meta">
+            <div><b>3 / 4</b><span>BLOCKS</span></div>
+            <div><b>92</b><span>HEART RATE</span></div>
+            <div><b>Calm</b><span>SOUNDSCAPE</span></div>
+          </div>
+        </div>
+      </div>
+      <!-- Stage 4 -->
+      <div class="stage-canvas" data-stage="3">
+        <div class="stage-vis">
+          <h4>WEEK 23 · REVIEW</h4>
+          <div class="stage-title">Review &amp; plan ahead</div>
+          <p style="font-size:13.5px;color:var(--ink-soft);margin:6px 0 0">Flow score per giorno. Lunedì è la tua finestra migliore.</p>
+          <div class="review-bars">
+            <div class="col"><div class="bar" style="height:62%"></div><span>MON</span></div>
+            <div class="col"><div class="bar" style="height:48%"></div><span>TUE</span></div>
+            <div class="col"><div class="bar" style="height:78%"></div><span>WED</span></div>
+            <div class="col"><div class="bar" style="height:38%"></div><span>THU</span></div>
+            <div class="col"><div class="bar" style="height:88%"></div><span>FRI</span></div>
+          </div>
+          <div style="display:flex;justify-content:space-between;margin-top:18px;padding-top:14px;border-top:1px dashed var(--line);font-size:12.5px">
+            <span style="color:var(--muted)">Avg. Focus Score</span><b>82% · +6%</b>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ FEATURES ═══════════════════════════════ -->
+<section class="features" id="rituals">
+  <div class="features-head">
+    <div>
+      <span class="section-eyebrow">Inside Siti</span>
+      <h2 class="section-title">Everything you need<br />for <em class="serif">peak calm.</em></h2>
+    </div>
+    <p class="section-sub">Una bento-grid di strumenti che lavorano in armonia. Niente bloat — solo i pezzi che muovono il tuo flow.</p>
+  </div>
+
+  <div class="grid-features" id="grid-features">
+    <div class="f-card flow">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12c4-6 8 6 12 0s6-4 6-4"/><path d="M3 18c4-6 8 6 12 0s6-4 6-4"/></svg>
+      </div>
+      <h3>Flow Engine</h3>
+      <p>Il cuore di Siti. Adatta rituali e blocchi di focus al tuo bioritmo, in tempo reale.</p>
+      <svg class="visual" viewBox="0 0 300 300" fill="none">
+        <path d="M40 200 C80 100, 160 100, 200 200 S 280 100, 300 150" stroke="#D47655" stroke-width="22" stroke-linecap="round" opacity=".4"/>
+        <path d="M40 220 C80 120, 160 120, 200 220 S 280 120, 300 170" stroke="#F5D27A" stroke-width="22" stroke-linecap="round" opacity=".55"/>
+        <path d="M40 240 C80 140, 160 140, 200 240 S 280 140, 300 190" stroke="#7BA8CE" stroke-width="22" stroke-linecap="round" opacity=".4"/>
+      </svg>
+    </div>
+
+    <div class="f-card calendar x3">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="3"/><path d="M3 10h18M8 3v4M16 3v4"/></svg>
+      </div>
+      <h3>Smart Calendar</h3>
+      <p>Blocchi di focus prenotati automaticamente attorno ai tuoi meeting.</p>
+      <div class="calendar-grid">
+        <i></i><i class="b"></i><i class="b"></i><i></i><i class="a"></i><i></i><i></i>
+        <i class="s"></i><i></i><i class="b"></i><i class="b"></i><i class="b"></i><i class="c"></i><i></i>
+        <i></i><i class="a"></i><i></i><i class="s"></i><i></i><i class="b"></i><i></i>
+      </div>
+    </div>
+
+    <div class="f-card team x2">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="8" r="3"/><circle cx="17" cy="9" r="2.5"/><path d="M3 19c0-3 3-5 6-5s6 2 6 5"/><path d="M15 19c0-2 2-4 5-4"/></svg>
+      </div>
+      <h3>Team Sync</h3>
+      <p>Rituali di gruppo e finestre di "no-meeting" condivise.</p>
+      <div class="avatar-row">
+        <div class="av a1"></div><div class="av a2"></div><div class="av a3"></div><div class="av a4"></div><div class="av a5">+8</div>
+      </div>
+    </div>
+
+    <div class="f-card insights">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M3 20h18"/><path d="M5 16l4-6 4 3 6-8"/></svg>
+      </div>
+      <h3>Living Insights</h3>
+      <p>Indici di Focus, Calm e Cohesion che imparano da te ogni settimana.</p>
+      <div class="mini-bars" id="mini-insights">
+        <span style="height:30%;background:#7BA8CE"></span>
+        <span style="height:55%;background:#7BA8CE"></span>
+        <span style="height:45%;background:#7BA8CE"></span>
+        <span style="height:70%;background:#7BA8CE"></span>
+        <span style="height:62%;background:#7BA8CE"></span>
+        <span style="height:88%;background:#7BA8CE"></span>
+        <span style="height:75%;background:#7BA8CE"></span>
+        <span style="height:92%;background:#D47655"></span>
+      </div>
+    </div>
+
+    <div class="f-card rituals">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 4v4M12 16v4M4 12h4M16 12h4M6.3 6.3l2.8 2.8M14.9 14.9l2.8 2.8M17.7 6.3l-2.8 2.8M9.1 14.9l-2.8 2.8"/></svg>
+      </div>
+      <h3>Ritual Library</h3>
+      <p>60+ rituali curati da terapeuti e atleti di alto livello.</p>
+    </div>
+
+    <div class="f-card ai x2">
+      <div class="ico-block">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3l2.5 5.5L20 11l-5.5 2.5L12 19l-2.5-5.5L4 11l5.5-2.5L12 3z"/></svg>
+      </div>
+      <h3>Flow Co-pilot</h3>
+      <p>Un assistente che propone il prossimo rituale al momento giusto.</p>
+      <div class="ai-prompt">
+        <b>Siti:</b> Hai accumulato 2h di deep work. <br/>Vuoi <b>3 min di stretch</b>?<span class="cursor"></span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ ANALYTICS ═══════════════════════════════ -->
+<section class="analytics" id="analytics">
+  <div class="analytics-head">
+    <span class="section-eyebrow">Analytics</span>
+    <h2 class="section-title" style="color:var(--bg)">Measure the<br/>shape of your <em class="serif" style="color:var(--coral)">flow.</em></h2>
+    <p class="section-sub">Indici di performance — non solo ore. Capisci dove sei in flow, dove ti distrai, e dove il team perde sincronia.</p>
+  </div>
+
+  <div class="analytics-grid">
+    <div class="a-card">
+      <div class="a-label">System Harmonics</div>
+      <div class="chart-legend">
+        <div><i style="background:var(--coral)"></i> Flow Score</div>
+        <div><i style="background:var(--blue)"></i> Team Cohesion</div>
+        <div><i style="background:var(--sage)"></i> Cognitive Load</div>
+      </div>
+      <div class="chart-line">
+        <svg viewBox="0 0 600 220" preserveAspectRatio="none" id="line-chart">
+          <!-- grid -->
+          <g stroke="rgba(255,255,255,.08)" stroke-dasharray="2 4">
+            <line x1="0" y1="40" x2="600" y2="40"/>
+            <line x1="0" y1="90" x2="600" y2="90"/>
+            <line x1="0" y1="140" x2="600" y2="140"/>
+            <line x1="0" y1="190" x2="600" y2="190"/>
+          </g>
+          <!-- coral line -->
+          <path class="ln" data-color="coral"  d="M0 160 C 60 120, 120 140, 180 90  S 300 80, 360 60  S 480 100, 600 50"
+                stroke="#E89A7C" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- blue line -->
+          <path class="ln" data-color="blue" d="M0 180 C 60 170, 120 130, 180 140 S 300 90, 360 110 S 480 70, 600 90"
+                stroke="#BBD3E8" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <!-- sage line -->
+          <path class="ln" data-color="sage"  d="M0 130 C 60 150, 120 110, 180 130 S 300 130, 360 150 S 480 130, 600 120"
+                stroke="#B8D4B0" stroke-width="2.5" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        </svg>
+      </div>
+      <div style="display:flex; gap:32px; margin-top: 22px; padding-top: 22px; border-top: 1px solid rgba(255,255,255,.08);">
+        <div><div class="a-label">Flow Score</div><div class="a-num"><span class="count" data-to="91">0</span>%</div><div class="a-delta">↑ +6.2% vs last week</div></div>
+        <div><div class="a-label">Cohesion</div><div class="a-num"><span class="count" data-to="88">0</span>%</div><div class="a-delta">↑ +3.1% vs last week</div></div>
+        <div><div class="a-label">Cognitive Load</div><div class="a-num"><span class="count" data-to="42">0</span>%</div><div class="a-delta" style="color:var(--coral)">↓ optimal range</div></div>
+      </div>
+    </div>
+
+    <div style="display:flex;flex-direction:column;gap:16px">
+      <div class="a-card">
+        <div class="a-label">Ritual Effectiveness</div>
+        <div class="chart-bars" id="bar-chart">
+          <div class="col"><div class="b"     style="--h:50%"></div><span class="lbl">W21</span></div>
+          <div class="col"><div class="b b2"  style="--h:68%"></div><span class="lbl">W22</span></div>
+          <div class="col"><div class="b"     style="--h:60%"></div><span class="lbl">W23</span></div>
+          <div class="col"><div class="b b3"  style="--h:82%"></div><span class="lbl">W24</span></div>
+          <div class="col"><div class="b"     style="--h:74%"></div><span class="lbl">W25</span></div>
+          <div class="col"><div class="b b2"  style="--h:90%"></div><span class="lbl">W26</span></div>
+          <div class="col"><div class="b"     style="--h:96%"></div><span class="lbl">W27</span></div>
+        </div>
+      </div>
+      <div class="a-card">
+        <div class="a-label">Today's Focus Mix</div>
+        <div class="donut-row">
+          <div class="donut-big">
+            <svg width="140" height="140" viewBox="0 0 140 140">
+              <circle cx="70" cy="70" r="58" stroke="rgba(255,255,255,.08)" stroke-width="14" fill="none"/>
+              <circle id="big-donut" cx="70" cy="70" r="58" stroke="url(#dgrad)" stroke-width="14" fill="none"
+                stroke-linecap="round" stroke-dasharray="364.4" stroke-dashoffset="364.4" transform="rotate(-90 70 70)"/>
+              <defs><linearGradient id="dgrad"><stop offset="0%" stop-color="#E89A7C"/><stop offset="100%" stop-color="#F5D27A"/></linearGradient></defs>
+            </svg>
+            <span class="pct"><span class="count" data-to="78">0</span>%</span>
+          </div>
+          <div class="donut-list">
+            <div class="li"><span>Deep work</span><b>3h 12m</b></div>
+            <div class="li"><span>Rituals</span><b>34m</b></div>
+            <div class="li"><span>Meetings</span><b>1h 04m</b></div>
+            <div class="li"><span>Shallow</span><b>22m</b></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ═══════════════════════════════ CTA ═══════════════════════════════ -->
+<section class="cta-block">
+  <span class="cta-deco b1"></span>
+  <span class="cta-deco b2"></span>
+  <span class="cta-deco b3"></span>
+  <span class="cta-deco b4"></span>
+  <span class="section-eyebrow">Ready?</span>
+  <h2>Find your<br/><em class="serif">flow</em> today.</h2>
+  <p>14 giorni gratis. Senza carta. Cancella quando vuoi — ma probabilmente non lo farai.</p>
+  <div class="hero-cta">
+    <a class="btn primary" href="#">Start free trial
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 5l7 7-7 7"/></svg>
+    </a>
+    <a class="btn ghost" href="#">Talk to us</a>
+  </div>
+</section>
+
+<footer>
+  <div class="brand"><span class="logo"></span>Siti</div>
+  <nav>
+    <a href="#">Product</a>
+    <a href="#">Rituals</a>
+    <a href="#">Pricing</a>
+    <a href="#">Manifesto</a>
+    <a href="#">Contact</a>
+  </nav>
+  <div>© 2026 Siti Labs · Made with calm.</div>
+</footer>
+
+
+<!-- ─────────────────────────────────────────────────────────────────────
+     GSAP + ScrollTrigger orchestration
+     ──────────────────────────────────────────────────────────────────── -->
+<script>
+  gsap.registerPlugin(ScrollTrigger);
+  // (DrawSVGPlugin caricato via CDN — funziona con stroke-dasharray fallback se non disponibile)
+
+  /* ============ HERO entrance ============ */
+  const heroTl = gsap.timeline({ defaults: { ease: "back.out(1.4)", duration: .9 } });
+  heroTl
+    .from('[data-anim="fade-up"]', { y: 28, opacity: 0, stagger: .08, duration: .8, ease: "power3.out" })
+    .from('.blob.coral', { scale: .4, opacity: 0, duration: 1.1, ease: "elastic.out(1, .55)" }, "-=.5")
+    .from('.blob.blue',  { scale: .4, opacity: 0, duration: 1.1, ease: "elastic.out(1, .55)" }, "-=.95")
+    .from('.blob.amber', { scale: .2, opacity: 0, duration: 1.0, ease: "elastic.out(1, .55)" }, "-=.9")
+    .from('.blob.sage',  { scale: .2, opacity: 0, duration: 1.0, ease: "elastic.out(1, .55)" }, "-=.95")
+    .from('.ritual-card', {
+      y: 60, opacity: 0, rotate: 0, scale: .8, stagger: .12, duration: .9, ease: "back.out(1.7)",
+      clearProps: "scale"
+    }, "-=.7")
+    .from('.focus-card, .timeline-card', { y: 40, opacity: 0, stagger: .15, duration: .8, ease: "back.out(1.4)" }, "-=.6")
+    .from('.dotgrid, .squiggle', { opacity: 0, scale: .6, stagger: .05, duration: .5 }, "-=.5")
+    .to('.focus-card .donut-ring', { strokeDashoffset: 138.2 * (1 - .82), duration: 1.2, ease: "power2.out" }, "-=.5");
+
+  /* ============ HERO parallax on scroll ============ */
+  document.querySelectorAll('[data-parallax]').forEach(el => {
+    const speed = parseFloat(el.dataset.parallax);
+    gsap.to(el, {
+      y: -120 * speed,
+      ease: "none",
+      scrollTrigger: { trigger: ".hero", start: "top top", end: "bottom top", scrub: true }
+    });
+  });
+
+  /* Hero cards float idle */
+  gsap.to('.ritual-card.mindful', { y: -10, duration: 3.2, repeat:-1, yoyo:true, ease:"sine.inOut"});
+  gsap.to('.ritual-card.stretch', { y: -14, duration: 3.6, repeat:-1, yoyo:true, ease:"sine.inOut", delay: .4});
+  gsap.to('.ritual-card.tea',     { y: -8,  duration: 2.8, repeat:-1, yoyo:true, ease:"sine.inOut", delay: .8});
+  gsap.to('.focus-card',          { y: -6,  duration: 3.4, repeat:-1, yoyo:true, ease:"sine.inOut", delay: 1.2});
+  gsap.to('.timeline-card',       { y: -7,  duration: 3.0, repeat:-1, yoyo:true, ease:"sine.inOut", delay: .6});
+
+  /* ============ SCROLLYTELLING ============ */
+  const stages   = gsap.utils.toArray('.stage-item');
+  const canvases = gsap.utils.toArray('.stage-canvas');
+  const setActive = (i) => {
+    stages.forEach((s, idx) => s.classList.toggle('active', idx === i));
+    canvases.forEach((c, idx) => c.classList.toggle('active', idx === i));
+    const active = canvases[i];
+    if (i === 2) animateTimerIn(active);
+    if (i === 3) animateReviewIn(active);
+  };
+
+  // Scoped, replayable animations -----------------------------------
+  const timerPlayedFor = new WeakSet();
+  function animateTimerIn(root){
+    if (!root || timerPlayedFor.has(root)) return;
+    timerPlayedFor.add(root);
+    const ring = root.querySelector('#timer-ring, .timer-ring');
+    const digits = root.querySelector('#timer-digits, .timer-digits');
+    if (!ring || !digits) return;
+    gsap.fromTo(ring, { strokeDashoffset: 577.9 }, { strokeDashoffset: 577.9 * .35, duration: 2.2, ease: "power2.out"});
+    const o = { v: 24*60 };
+    gsap.to(o, { v: 15*60, duration: 2.2, ease:"power2.out", onUpdate: () => {
+      const m = Math.floor(o.v/60), s = Math.floor(o.v%60);
+      digits.textContent = String(m).padStart(2,'0') + ':' + String(s).padStart(2,'0');
+    }});
+  }
+  const reviewPlayedFor = new WeakSet();
+  function animateReviewIn(root){
+    if (!root || reviewPlayedFor.has(root)) return;
+    reviewPlayedFor.add(root);
+    gsap.from(root.querySelectorAll('.review-bars .bar'), { scaleY: 0, transformOrigin: "bottom", stagger: .08, duration: .7, ease: "back.out(1.6)"});
+  }
+
+  let currentStage = 0;
+
+  // Only pin on desktop — below 980px the layout is stacked and the right panel
+  // is hidden in favour of inline mobile visuals, so a pin would be wrong.
+  const mm = gsap.matchMedia();
+
+  mm.add("(min-width: 981px)", () => {
+      // No GSAP pin — `.story-right` uses CSS `position: sticky` which is
+      // simpler and avoids the pin offset miscalculation. We only need a
+      // ScrollTrigger here for the stage-tracking progress.
+      const progressST = ScrollTrigger.create({
+        trigger: '.story',
+        start: "top top+=80",
+        end:   () => "+=" + (document.querySelector('.story').offsetHeight - window.innerHeight - 80),
+        scrub: true,
+        onUpdate: self => {
+          const i = Math.min(stages.length - 1, Math.floor(self.progress * stages.length));
+          if (i !== currentStage) { currentStage = i; setActive(i); }
+          gsap.to('#stage-progress', { height: (self.progress * 100) + '%', duration: .1, overwrite: true });
+        }
+      });
+
+      return () => { progressST.kill(); };
+  });
+
+  mm.add("(max-width: 980px)", () => {
+    // Mobile: clone each canvas inline under its stage-item so users see the
+    // visual right next to the description, and trigger the per-stage anims
+    // when each enters the viewport.
+    const triggers = [];
+    stages.forEach((s, i) => {
+      if (s.querySelector('.mobile-vis')) return;
+      const original = document.querySelector('.stage-canvas[data-stage="' + i + '"]');
+      if (!original) return;
+      const wrap = document.createElement('div');
+      wrap.className = 'mobile-vis';
+      const vis = original.querySelector('.stage-vis').cloneNode(true);
+      vis.querySelectorAll('[id]').forEach(el => {
+        const id = el.id;
+        el.classList.add(id);
+        el.removeAttribute('id');
+      });
+      wrap.appendChild(vis);
+      s.appendChild(wrap);
+
+      triggers.push(ScrollTrigger.create({
+        trigger: wrap, start: "top 85%",
+        onEnter: () => {
+          currentStage = i;
+          stages.forEach((st, idx) => st.classList.toggle('active', idx === i));
+          if (i === 2) animateTimerIn(wrap);
+          if (i === 3) animateReviewIn(wrap);
+        },
+        onEnterBack: () => {
+          currentStage = i;
+          stages.forEach((st, idx) => st.classList.toggle('active', idx === i));
+        }
+      }));
+    });
+
+    return () => {
+      triggers.forEach(t => t.kill());
+      document.querySelectorAll('.mobile-vis').forEach(n => n.remove());
+    };
+  });
+
+  // Click stages to scroll
+  stages.forEach((s, i) => {
+    s.addEventListener('click', () => {
+      const trig = ScrollTrigger.getAll().find(t => t.vars.trigger === '.story' && t.vars.scrub);
+      if (trig) window.scrollTo({ top: trig.start + (trig.end - trig.start) * (i / stages.length) + 40, behavior: 'smooth'});
+    });
+  });
+
+  /* ============ FEATURES — stagger reveal & hover float ============ */
+  gsap.from('.f-card', {
+    y: 60, opacity: 0, scale: .96, stagger: { each: .08, from: "start" },
+    duration: .8, ease: "back.out(1.4)",
+    scrollTrigger: { trigger: '.grid-features', start: "top 80%" }
+  });
+
+  // mini-bars draw
+  ScrollTrigger.create({
+    trigger: '#mini-insights', start: "top 85%",
+    onEnter: () => gsap.from('#mini-insights span', { scaleY: 0, transformOrigin: "bottom", stagger: .07, duration: .7, ease: "back.out(1.5)"})
+  });
+
+  /* ============ ANALYTICS — chart draw-in ============ */
+  ScrollTrigger.create({
+    trigger: '.analytics', start: "top 70%",
+    onEnter: () => {
+      // line chart — stroke-dasharray trick
+      document.querySelectorAll('#line-chart .ln').forEach((p, i) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = len;
+        p.style.strokeDashoffset = len;
+        gsap.to(p, { strokeDashoffset: 0, duration: 2.0, delay: i * .25, ease: "power2.inOut"});
+      });
+
+      // bars
+      document.querySelectorAll('#bar-chart .b').forEach((b, i) => {
+        const h = b.style.getPropertyValue('--h');
+        gsap.fromTo(b, { height: 0 }, { height: h, duration: 1.0, delay: .3 + i * .07, ease: "back.out(1.4)"});
+      });
+
+      // big donut
+      gsap.to('#big-donut', { strokeDashoffset: 364.4 * (1 - .78), duration: 1.6, delay: .4, ease: "power2.out"});
+
+      // counters
+      document.querySelectorAll('.count').forEach((el, i) => {
+        const to = +el.dataset.to;
+        const o = { v: 0 };
+        gsap.to(o, { v: to, duration: 1.6, delay: .3 + i * .12, ease: "power2.out",
+          onUpdate: () => el.textContent = Math.round(o.v) });
+      });
+    }
+  });
+
+  /* ============ CTA deco entrance ============ */
+  gsap.from('.cta-deco', {
+    scale: 0, opacity: 0, stagger: .12, duration: 1.0, ease: "elastic.out(1, .55)",
+    scrollTrigger: { trigger: '.cta-block', start: "top 70%" }
+  });
+  gsap.to('.cta-deco', {
+    y: -20, duration: 3.5, repeat: -1, yoyo: true, ease: "sine.inOut",
+    stagger: { each: .4, from: "random" }
+  });
+
+  /* ============ Hover float micro-interactions for ritual cards ============ */
+  document.querySelectorAll('.ritual-card').forEach(card => {
+    card.addEventListener('mouseenter', () => gsap.to(card, { y: '-=10', rotate: '+=2', duration: .5, ease: "back.out(2)"}));
+    card.addEventListener('mouseleave', () => gsap.to(card, { y: '+=10', rotate: '-=2', duration: .5, ease: "back.out(1.6)"}));
+  });
+
+  ScrollTrigger.refresh();
+</script>
+
+</body>
+</html>
